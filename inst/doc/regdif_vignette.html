@@ -14,106 +14,103 @@
 
 <title>Getting started with regDIF</title>
 
-<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
-// v0.0.1
-// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
-
-document.addEventListener('DOMContentLoaded', function() {
-  const codeList = document.getElementsByClassName("sourceCode");
-  for (var i = 0; i < codeList.length; i++) {
-    var linkList = codeList[i].getElementsByTagName('a');
-    for (var j = 0; j < linkList.length; j++) {
-      if (linkList[j].innerHTML === "") {
-        linkList[j].setAttribute('aria-hidden', 'true');
-      }
-    }
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
   }
 });
 </script>
 
 <style type="text/css">
-  code{white-space: pre-wrap;}
-  span.smallcaps{font-variant: small-caps;}
-  span.underline{text-decoration: underline;}
-  div.column{display: inline-block; vertical-align: top; width: 50%;}
-  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  ul.task-list{list-style: none;}
-    </style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
 
 
 <style type="text/css">
-  code {
-    white-space: pre;
-  }
-  .sourceCode {
-    overflow: visible;
-  }
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
 </style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
-  { counter-reset: source-line 0; }
+{ counter-reset: source-line 0; }
 pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
+{ position: relative; left: -4em; counter-increment: source-line; }
 pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
-
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
 </style>
 <script>
 // apply pandoc div.sourceCode style to pre.sourceCode instead
@@ -122,13 +119,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   for (var i = 0; i < sheets.length; i++) {
     if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
     try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
+    var j = 0;
+    while (j < rules.length) {
       var rule = rules[j];
       // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
       var style = rule.style.cssText;
       // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
       // replace div.sourceCode by a pre.sourceCode rule
       sheets[i].deleteRule(j);
       sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
@@ -336,13 +340,23 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<p>This vignette introduces <code>regDIF()</code> to the general user by providing common use cases.</p>
+<p>This vignette introduces <code>regDIF()</code> to the general user by
+providing common use cases.</p>
 <div id="using-lasso-regularization-to-evaluate-measurement-bias-in-a-2-parameter-logistic-irt-model." class="section level2">
-<h2>Using LASSO regularization to evaluate measurement bias in a 2-parameter logistic IRT model.</h2>
-<p>In this example, data in <code>ida</code> were generated to mimic an integrative data analysis, where data are pooled across multiple studies and the measurement model is evaluated for between-study and within-study (e.g., gender, age) measurement bias. These data include 6 item responses (binary) and 3 background characteristics – namely, age (continuous, centered), gender (categorical, effect-coded), and study (categorical, effect-coded).</p>
-<p>DIF was generated to be on items 2 (age, gender, study), 3 (age, gender, study), 4 (age), and 5 (gender, study), for both intercepts and slopes.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(regDIF)</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">head</span>(ida)</span></code></pre></div>
+<h2>Using LASSO regularization to evaluate measurement bias in a
+2-parameter logistic IRT model.</h2>
+<p>In this example, data in <code>ida</code> were generated to mimic an
+integrative data analysis, where data are pooled across multiple studies
+and the measurement model is evaluated for between-study and
+within-study (e.g., gender, age) measurement bias. These data include 6
+item responses (binary) and 3 background characteristics – namely, age
+(continuous, centered), gender (categorical, effect-coded), and study
+(categorical, effect-coded).</p>
+<p>DIF was generated to be on items 2 (age, gender, study), 3 (age,
+gender, study), 4 (age), and 5 (gender, study), for both intercepts and
+slopes.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(regDIF)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ida)</span></code></pre></div>
 <pre><code>##   item1 item2 item3 item4 item5 item6 age gender study
 ## 1     0     0     0     0     0     0  -2     -1    -1
 ## 2     0     0     0     0     0     0   0     -1    -1
@@ -350,72 +364,174 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## 4     0     1     1     1     1     1   1     -1    -1
 ## 5     0     0     0     0     0     0  -2     -1    -1
 ## 6     1     0     0     0     0     0   1     -1    -1</code></pre>
-<p>The item response data must first be separated from the predictor data (background variables) before running <code>regDIF()</code>. A single value of the tuning parameter, <code>tau = 2</code>, is then fit to the data.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>item.data &lt;-<span class="st"> </span>regDIF<span class="op">::</span>ida[,<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>]</span>
-<span id="cb3-2"><a href="#cb3-2"></a>pred.data &lt;-<span class="st"> </span>regDIF<span class="op">::</span>ida[,<span class="dv">7</span><span class="op">:</span><span class="dv">9</span>]</span>
-<span id="cb3-3"><a href="#cb3-3"></a>fit &lt;-<span class="st"> </span><span class="kw">regDIF</span>(item.data, pred.data, <span class="dt">tau =</span> <span class="dv">2</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">summary</span>(fit)</span></code></pre></div>
+<p>The item response data must first be separated from the predictor
+data (background variables) before running <code>regDIF()</code>. A
+single value of the tuning parameter, <code>tau = 2</code>, is then fit
+to the data.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>item.data <span class="ot">&lt;-</span> regDIF<span class="sc">::</span>ida[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pred.data <span class="ot">&lt;-</span> regDIF<span class="sc">::</span>ida[,<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">tau =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div>
 <pre><code>## Call:
 ## regDIF(item.data = item.data, pred.data = pred.data, tau = 2)
 ## 
 ## Optimal model (out of 1):
-##     tau     bic 
-##    2.00 4133.96 
+##      tau      bic 
+##    2.000 4133.959 
 ## 
 ## Non-zero DIF effects:</code></pre>
-<p>The <code>summary()</code> function shows that no DIF effects remain in the model. Only the latent variable parameters and base item parameters, which were not penalized at all, are estimated to be non-zero.</p>
-<p>Now that the data have been properly specified in <code>regDIF</code>, a more thorough investigation of DIF is warranted. The <code>regDIF()</code> function defaults to estimating 100 values of the tuning parameter, starting with a value large enough to penalize all DIF effects to zero. However, for brevity, only 10 values of tau are specified with the <code>num.tau</code> argument.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>fit2 &lt;-<span class="st"> </span><span class="kw">regDIF</span>(item.data, pred.data, <span class="dt">num.tau =</span> <span class="dv">10</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>fit2</span></code></pre></div>
+<p>The <code>summary()</code> function shows that no DIF effects remain
+in the model. Only the latent variable parameters and base item
+parameters, which were not penalized at all, are estimated to be
+non-zero. This is shown by using the <code>coef</code> method.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(fit)</span></code></pre></div>
+<pre><code>## $tau
+## [1] 2
+## 
+## $impact
+##                [,1]
+## mean.age     0.7059
+## mean.gender -0.1744
+## mean.study   0.9611
+## var.age      0.4361
+## var.gender  -0.1017
+## var.study   -0.1221
+## 
+## $base
+##               [,1]
+## item1.int. -0.7385
+## item2.int. -1.0813
+## item3.int. -1.3993
+## item4.int. -2.1289
+## item5.int. -1.5276
+## item6.int. -2.3278
+## item1.slp.  0.9842
+## item2.slp.  0.9637
+## item3.slp.  0.9215
+## item4.slp.  1.3943
+## item5.slp.  1.1719
+## item6.slp.  1.3460
+## 
+## $dif
+##                  [,1]
+## item1.int.age       0
+## item1.int.gender    0
+## item1.int.study     0
+## item2.int.age       0
+## item2.int.gender    0
+## item2.int.study     0
+## item3.int.age       0
+## item3.int.gender    0
+## item3.int.study     0
+## item4.int.age       0
+## item4.int.gender    0
+## item4.int.study     0
+## item5.int.age       0
+## item5.int.gender    0
+## item5.int.study     0
+## item6.int.age       0
+## item6.int.gender    0
+## item6.int.study     0
+## item1.slp.age       0
+## item1.slp.gender    0
+## item1.slp.study     0
+## item2.slp.age       0
+## item2.slp.gender    0
+## item2.slp.study     0
+## item3.slp.age       0
+## item3.slp.gender    0
+## item3.slp.study     0
+## item4.slp.age       0
+## item4.slp.gender    0
+## item4.slp.study     0
+## item5.slp.age       0
+## item5.slp.gender    0
+## item5.slp.study     0
+## item6.slp.age       0
+## item6.slp.gender    0
+## item6.slp.study     0</code></pre>
+<p>Now that the data have been properly specified in
+<code>regDIF</code>, a more thorough investigation of DIF is warranted.
+The <code>regDIF()</code> function defaults to estimating 100 values of
+the tuning parameter, starting with a value large enough to penalize all
+DIF effects to zero. However, for brevity, only 10 values of tau are
+specified with the <code>num.tau</code> argument and we reduce the
+tolerance for convergence using the <code>control</code> argument.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">num.tau =</span> <span class="dv">10</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">tol =</span> <span class="fl">1e-3</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit2</span></code></pre></div>
 <pre><code>## Call:
-## regDIF(item.data = item.data, pred.data = pred.data, num.tau = 10)
+## regDIF(item.data = item.data, pred.data = pred.data, num.tau = 10, 
+##     control = list(tol = 0.001))
 ## 
 ## regDIF results:
 ##           tau      bic
-## 1  0.65292855 4133.960
-## 2  0.45857259 4118.947
-## 3  0.30720781 4102.819
-## 4  0.19346031 4074.727
-## 5  0.11195620 4094.030
-## 6  0.05732157 4106.946
+## 1  0.59206560 4133.065
+## 2  0.41582659 4104.552
+## 3  0.27857133 4087.552
+## 4  0.17542684 4081.078
+## 5  0.10152016 4093.533
+## 6  0.05197832 4120.268
 ## 7          NA       NA
 ## 8          NA       NA
 ## 9          NA       NA
 ## 10         NA       NA</code></pre>
-<p>By printing the model object, 10 rows of results appear, one for each value of the tuning parameter. The first thing to notice is that 4 rows are missing. This occurs because <code>regDIF()</code> automatically stops model-fitting when a small value of tau would produce a non-identified model. In focusing attention to the BIC column, it is evident that the smallest value occurs well before the model would be non-identified. This is an encouraging result. The <code>summary()</code> function may be used again, which, with multiple values of the tuning parameter fit to the data, produces non-zero DIF effects corresponding to the model with the minimum value of BIC.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">summary</span>(fit2)</span></code></pre></div>
+<p>By printing the model object, 10 rows of results appear, one for each
+value of the tuning parameter. The first thing to notice is that 4 rows
+are missing. This occurs because <code>regDIF()</code> automatically
+stops model-fitting when a small value of tau would produce a
+non-identified model. In focusing attention to the BIC column, it is
+evident that the smallest value occurs well before the model would be
+non-identified. This is an encouraging result. The
+<code>summary()</code> function may be used again, which, with multiple
+values of the tuning parameter fit to the data, produces non-zero DIF
+effects corresponding to the model with the minimum value of BIC.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2)</span></code></pre></div>
 <pre><code>## Call:
-## regDIF(item.data = item.data, pred.data = pred.data, num.tau = 10)
+## regDIF(item.data = item.data, pred.data = pred.data, num.tau = 10, 
+##     control = list(tol = 0.001))
 ## 
 ## Optimal model (out of 10):
 ##          tau          bic 
-##    0.1934603 4074.7270000 
+##    0.1754268 4081.0782000 
 ## 
 ## Non-zero DIF effects:
 ##    item4.int.age    item5.int.age item5.int.gender  item5.int.study 
-##            0.263           -0.247           -0.656            0.349</code></pre>
-<p>A plot of the regularization path also shows the remaining DIF effects.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">plot</span>(fit2)</span></code></pre></div>
-<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqAAAAGACAMAAABFpiBcAAAA21BMVEUAAAAAADoAAGYAOjoAOmYAOpAAZpAAZrYAi4s6AAA6ADo6AGY6OgA6Ojo6OmY6OpA6ZpA6ZrY6kJA6kNtmAABmADpmAGZmOgBmOjpmOpBmZmZmkLZmkNtmtttmtv+QOgCQOjqQOmaQZgCQZjqQkGaQkLaQtpCQttuQ27aQ29uQ2/+2ZgC2Zjq2ZpC2kDq2kGa225C227a229u22/+2/7a2/9u2//+4uLjNW0XbkDrbkGbbkJDbtpDb27bb29vb/9vb///ualD/tmb/2rn/25D/27b//7b//9v///8Gf3hEAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAUjklEQVR4nO2djX/cNhnHndIszTrWjYR24yUpGzCWGzBWSHewQXq95u7//4uwbMvnN9mSrMf+2fp9P7A0fpN0+uaxJOvk5EgIMMncGSCkDwpKoKGgBBoKSqChoAQaCkqgoaAEGgpKoKGgBBoKSqChoAQaCkqgoaAEGgpKoKGgBBoKSqChoAQaCkqgoaAEGgpKoKGgBBoKSqChoAQaCkqgoaAEGgpKoKGgBBoKSqChoAQaCkqgoaAEGgpKoKGgmsNtknH26Rvb488fHLZn+/5637u/YJvnJGnlRJ2f7j27s8rhKqCgGi1oYln/HoJ+ePXESdBmTrLzKWiknARNLiyPHxKtySZRgg1TCtpIIT+fgsaJFm5/mf08fJcGsM8zP9Q/n95lduSKPF4nV/r4n16pe7EyJhXnz6+SJz+o7ekRZQgsj9ioLU/+VaTz0xdJ8ovfPuQnfpslobOyzUX+cN11/n3r8FVDQTVlRNyon4VhT+91aD37pFPQ3UnEPO6d/68h6OmImqDbU4jUAbMMjIWgeaxsnn+vD7eLxkuHgmrqETQ18Y3659VRGXLxcNgkXYKm//nooTguFef8zfG/p1v/JmkckZ2d789TSU/JT3z6pvh3RiHoz9fpz9b5RTqVw1cNBdVU2qBXuYKFKaWUnbf41KO/f5I1W1Nlbo6VSLwtY6I+oiJo0RzNfuQnpg7qtm+zDVo7vzi8yOHqoaCak6AXWcTSd1YtXHcb9PB12a8qOi+VSJwLezriJKg+KDsnPzG9aEtQtb15fvvwVUNBNVrQp98cj7rhpxTRJlQEzW64WrTk6Z9+vm4LqvZcFJfVR5wE1RfdKYlNgp599qbjfAoaKblwf8tvq6mCN9XtR4OgedvwsUPQTdGLqR5hH0FPHaDW+RQ0Ug5l7/qiXv3VNmguxy7Rgu508/GqIehON0CrRxjboD2Cts6noJFyipTKiE1y9ns1EJm7Vvbis77zh9ukEkHPHz7cttqgapgp78O0jujqxfdH0EYKFDROKp2bVI9iIDPrpVTGQcvOU6UN2tVJKtuwF9UjdqZx0B5BW+ffU9A4qQzUq6r/8HXq4mfZbA31JOnFm6L5+Srd+o96L/7pN9vTnbopaPWI7JHUD9UnSb9T1+8VtHX+GwpKutg4P3onAaCgg6QR9fPaODqZEAo6iL5dxzSHCAcKOsyHLy6LUXMyORSUQENBCTQUlEBDQQk0FJRAQ0EJNBSUQENBCTQUlEBDQQk0FJRAQ0EJNBSUQENBCTQUlEBDQQk0FJRAQ0EJNBSUQENBCTQUlEBDQQk0FJRAQ0EJNBSUQOMmqF4LMI43oBAAnATd6hdL7OJ4wwSZHxdBD7elllvDUoQJIVZICPp4rV8scNwZbvI4TVqcnJAORAS1iaAOl5MFJyekAxFB0zZoEUKNbVAcLXByQjqQEVS/WsC8GDaOFjg5mQfw8gsJOvXlRoCTk3kALz8FxcnJPICXX1rQLXvx4ICXf+II6j68JQ5OTuYBvPy8xePkhHRAQXFyQjqgoDg5IR0sQND98/v0f527Drc3xRGnYwVzskrAyy/0LP7UGQrSizd5Vz6xGjqwB/AKEge8/DIR9HA7NBG0ern3KfqnprJ7//yf16nnj9fZe3xf/zFJrnb5S9b3n77SEXT/4qskucmPyd6XqdRNf336xd1Rbw1QsBUCXn6hW/zhduCFqpXLaSHfGwXNbvGbq+P2Irvw/vIiC5WH19+Wt/j95dVxd/6QR9DHX98di1N2Z3fFmWEKtj7Ayy/VBt01b77+l8sFVdI9vrw/vL47qv+rX7dXpzao8rHWWE2PTf+nji3ODJCTVQJe/sV0krJ27dldRdD9iwejoBvV+E0PyATNzwyQEzI9yxE0j4EVQbdZJ+zq2BZUTZguTlGCmqOnY07I9CxG0KxBef5QvcVXh5lqgma/fHxXaYPujPP+KCg2yxBUjQqkd+qzu2Nb0FzLQtD0wO/Tf6XB9WnawU9P+eh11os33+GjFxS8/AsQdBTDA6PgFSQOePnXLKj6cn5P6JwwJ8iAl3/NgtqBk5N5AC8/BcXJyTyAl5+C4uSEdLAAQY2zmbZ6LgpnM62XBQh6NHm3aT9NpaBrA0HQHzspd5tmM6nhUH0EZzN5A15+AEG7/awK2j2bKXvGztlMYwEvP4CgQ5hmM6mHmXkU5WymEYCXfzmCtmYzZTuzdihnM40AvPzLEbQ1mynb2SkoZzM5AF7+xQjans2kZigd/nB/5GymNbMMQbtnM22zOzdnM62aBQg6Cs5mWjhrFpSzmWwAL/+aBbUDJyfzAF5+CoqTk3kALz8FxcnJPICXfwGCBpzNVHzJzjcnqwS8/AsQ9BhuNhMFXRwIgr4rqP9e7vaYzVSbxpTvyjfmg6Nq46evihlOFBQaAEHfNQR91xLUdTZTfRpTsSvbmB6vN960c0LwABB0CPfZTPVpTMWubOPtTWWjSMEWB3j5lyOow2ym+jSm6q7NTWWjSMEWB3j5RQR9vFYrJu3My9dKz2aqTWNqRNDTRveCrRHw8ssJmr1GtvLeY+/Luc9mqk9jKnZV2qCnxqpjwdYIePnFBC3UDPC2Y4/ZTLVpTFrQw63uxRcb3Qu2RsDLLyZo0U2e7X3x1t/vBK+g2FlABHXHbhrTFDkhYxESVC0te3HU3aWRl5MFJyekA6lhprylt0sMfgJpgZOTeRAo/7MU/VNT3e7CAsZBhcHJyTyEL78W8llD0JqoXeI+G5M9CrpSQpW/IpzdkS1xO0+WFjTA++K9p9vVz+qayeSYk1UyvvxN4YIycQT1fF+833Q7CmpDMEHHZ6ULhFu8qWlS4DHdbpcUJ3xfDNLnU+1So9VjetGCRYSglicABDW1qTUei4e9vM+m1JUPmIrHnLv0v61hBQrqy5IFVUPlPe86lp5ul88kOW3WE0W+fPiuNX5PQd0QvaG3kRF0q8c/jQOhotPt1Pqg5VP6ylS7w+u/fNl6sBW7oPblF+0MmRAR9HBbahlmsojjdDtFfr+vR9Dj9jftvxcKasvEauYIPeosO8wBJou4T7dTe3JBs0lPT8qpdqpVMKZga2S4/DNoeWIZEdR1ul22POhRnZUe86uX5VS73Gf/gq2RGAVN1SlCaIg2aED2n7e3UdBuZrmhtxHqxefzmZLEuCznLFpsu+bgxS5om1k6QyYAxkFnBicnKIComUNBcXIyN0BanqCgODmZh1P5Kajc5UaAk5N5ELihvw94LQqKk5MZEOkMvVeEuhgFxcnJ1IRS830VvWH0VQtmExSHsAVbELmd/uXXQrYEbewfBSNofPjGzaaIQwJ2SeuMj6CP18n5w8b0fc3A6ZLgOAs6ECmHTh0lqYegu7O77fmD8RvvgdMlwRgVOUekO7GgaiaImgJi+jpc4HRJEMy99XZN+ERKG7yu5y6omkunBDVNpAucLhlN/1DSqSaGOj1jmUhQHUE35vezhkyXjKb/1m7f6QmFUzrebdByRp0fFHRGhCOlTfLWaXr24h1WjxuZLvHGFDkbt/KJc1XJg03qHAddL1rQuSLlEEKC6q+rsZOESk3MI66gmt58+QvKYSZEqj12VCGblPnsyqyroJvTM2wO1KNQVHApp5OYODXRmWn/CDoOnI9l+byvCuocM8Frgp2k5dFsU46bNAdTE2/fvu3Y6iGo/sYm26ATY+r0LF/Qt2+77Tx6Cbo5f6i9jdULhI8FnaaIMp2euWvC7GaGz7P4/OXBpjVDHC9H2lgOD0F+yc2FnsBZ4jdZRC+76Q8F7cAhUsIsrOCJjZsZfpNFVE+ego7GcyB9DXJaH+zRBi1Wi+MtfiztTo/deWHlnLQmrANnic8w0+biqBeD9yYqQQM9cpSJmlPVhLubGULjoCGXAF88oZ6JL1dQPzczpJZfDLgE+HIIJGIL0famcE14Bs4SkYH6sAvYLoZQkbKOdIdIriY63Xzbx5jsVXrxg72jsEuAwxI8UrZZXHe91z+fYOo3DjrAyiOoTKRssxQ7Q3hoxG8cdAjUJcD9aIooGDFrINsZKD42rtexw6MN2vWqjCaYS4A7MlWkbDJt3LSvibBK1i84PnsVQS9XOptprkjZBEnQ4Hdv1yv53OIvfDLmm+4EBIuUWqxnFXy2T0q7JsI3KNE6SRVM31x6lv1nZEV6bn/f2P7e8zrPGtufBdo+LXnFCvRxwlxOppNkvgohZoIIatVJcrgcmZssxgVta+anB+lU+dziC91X10mKmYY7o91qn9B5yeHrcrII0Rhl8TIrj8p9aVldcK7JIj8WuFyVSFCvWItAaR0Ki9u8RR6mFtTiUeePBhxSIUFoVazb3bxX1bfFESGz13/g4/WVRRvUfrKIyVMaOxmdBrhJWj+v6mj5w9vRuSKo4XLDwtLYwBgr1ldSfW5+ur6G78VkVrcLN1mEwkrTWxMBJK3c8Kf5yofV6nZWk0XeaWzzoKCxUzPS0dpEJflx0JCr23kJ2oTCTsDIQKp6S1pT1yshrW4XRFgaK8QISaudJuN4kgGk1e3CCNqEovbjUrH+klbPdHLU60tzV2kvyNy8DJaujLAtY8NefXG4Rh5fR5taWlrqt7rd/vJCLd8wghkF1VDUDI9b47hR0ubv/dfymw+6S25meInCRE2AoFfHx7Pt5ilpU0ndcTJezU/QTSrn9C9RkI2osXo6onPhI+lbPfRU3VL7WcfnFn/xeK3edix+ix9imoga9OLrw13SzM9Wt8l0tN/KImd3Y7+ZJCFoUGFjv/O74OpoGUItHEUaZhqLSESlqFY4BtLTkH3tUWjHkWsStIloRA1xTQjC1YSTpNUI2nee83S7wYl0LpeTZZKIGvLasxC2JhwkrXWNjOf5CJrPpsMXtAmbqF2ErwlbR5szSELc4ilog+V7KpJlS0ctJovGJGiDWJuoreBvi1sydo4OThaloEEjKuad31vJkSpbOVodaerYHbGgTUIKO7OnVvqEvaghDRtHQz6Lp6BuTCWqpS4T0XJ0QNK+/RTUSEBhBYwJZqRITTRzMeRowE7S6SsfFNSZMSJJxUipmnB0NODbjoOwAEGbCEZUu6NCB+EcuZpo5bPf0e6dFNSaKSLqFEY2EK0JN0djexYvTDhhJ1ayjnBNtEviNq2EgnojO396RbT/2BwcpaDBoLBGOm4Ito5S0GBQ0B662ixS3+ocRn0xWa3LxAVsF8BkNWFwdEBSOUGzde2MrwSJQNCFRNQJa6K769fvqJighZprfFenJRS0A2dHxQTdX2aCrvltx46ACjt1TRhG0Cb90hwjaBcUVGN0tONYIUHVs/qLo+4ujbzcSgEVdhLsH0RIDTNlX543L7BMQTsEjUtVS0U5DgpDdBHVKoxSUCBmEXTOmrBQVFpQ0xJjFHSQiWSduSaGHGUEhWWiW/7sNdGvKAWFJgZBj72OTixo76vBSS9CERWjJoyKCgnKtx2HZ+29/CkFHX7bMQUlVogI6v+uTmLP2iNqjtCjTtu3HRN/AgkKXhOMoLEDXhNSbdBQbzsm1nhGVPCaEOrFW73tmASFgs6SLvHFUlbwmpAUtNIUDXE54sY6evkUdNVQ0D4oKBTLjKgUNBoMgoLXBAWNHfCaYC8+WtpfiZL93Q8KGi0NgZotgNC/ewpLQWNnqpqwEbjjNApK5qFL2I7DKCiBhoISaCho7IDXBAWNHfCaoKCxA14TFDR2wGuCgsYOeE1QUAINBSXQUFACDQWNHfCaoKCxA14TFDR2wGuCgsYOeE1Q0NgBrwkKSqChoAQaCkqg4RLgsQNeE1wCPHbAa4IL2MYOeE2ICMolwBcEeE0wgsYOeE1ItUG5BDgJApcAJ9BwHJRAQ0FjB7wmpAXl++LRAa8JRtDYAa8JCho74DUxsaB8Xzwc4DXBCEqgoaAEGqFn8adbOXvxZAwyEfRwa5wI6nM5Igh4TYhNWL4IeTkiB3hNSLVBd8lN737wjyUiwGuCnaTYAa+J2QQlxApBQfve1RmcaQIBU8FMxS8hCspUKKhmTR83U5kmIQrKVCioZk0fN1NBTsiTNX3cTAU5IU/W9HEzFeSEPFnTx81UkBPyZE0fN1NBTogQHygogYaCEmgoKIGGghJoKCiBhoISaCgogYaCEmgoKIGGghJoKCiBhoISaEAF3SXJ2V3x73xJqIElTUanotgYXw4RLJVtI0mRVLI3Vop87aHxie2fDyyFNB5MQXfpp7DTn8T+Y5EabaSifje/vSRUKmrp9J2EodVUDrfpP7YSf9KNT+zxemitrvFACpp/62lTfMKmt9qFTSWL1AKC1lJ5vL6yWOBqbCr7S7U+kek1AqFSycJppILWP+GtxN29lYp6e95XAoK2bZEQtMNJgUBdT2WXXEnFjgqYgmY3dV36zS9lWlT1VNSvEm3QRiopW4FbfDuV4ya8PK1UYhU0/+MvQsDjtdJmE97QWirZ7UtC0Hoq2X1R4I+tmUrP2ypDpkJBT5vCfxT1VNTrcacQVP0phE+mrY5UH4mCHjtvWHnzRy6V7JdpbvEircNGKhLxk7f4ko4mv8BYUy2VbbEqYPg/g46yCPyx1VPZyoyCtsoSq6AdgyYCH0VzmEkmgs5Rlm34v7OOVI7xClofEM4+EIFOUmugXuZJUr0saQoia1tVU9lfSi2e1Xq0Eaug+olgPmS4kbj1tlI5Sj3qnLwsRXNF4oFV4xOLV1BCcigogYaCEmgoKIGGghJoKCiBhoISaCgogYaCEmgoKIGGghJoKCiBhoISaCgogYaCEmgoKIGGghJoKCiBhoISaCgogYaCEmgoKIGGghJoKCiBhoISaCgogYaCEmgoKIGGghJoKCiBhoISaCioLNlbCYUWPI4CCirLv+8eX4ov8rpmKKg0FHQUFFSa/QuJdcWjgYJKQ0FHQUGloaCjoKDS7J/f/4etUG8oqDjfybz2LRIoKIGGghJoKCiBhoISaCgogYaCEmgoKIGGghJoKCiBhoISaCgogYaCEmgoKIGGghJoKCiBhoISaCgogYaCEmgoKIGGghJoKCiBhoISaCgogYaCEmj+D7OOgxSzeiQUAAAAAElFTkSuQmCC" /><!-- --></p>
-<p>To produce other model results, the <code>fit2</code> object contains lists of the impact (latent variable) parameters, base (intercept and slope) item parameters, and DIF parameters for all values of the tuning parameter. For instance, the impact parameters are printed below.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>fit2<span class="op">$</span>impact</span></code></pre></div>
-<pre><code>##               [,1]   [,2]   [,3]   [,4]   [,5]   [,6] [,7] [,8] [,9] [,10]
-## mean.age     0.706  0.725  0.742  0.711  0.724  0.884   NA   NA   NA    NA
-## mean.gender -0.174 -0.134 -0.107 -0.072 -0.075 -0.107   NA   NA   NA    NA
-## mean.study   0.961  0.957  0.957  0.895  0.890  0.943   NA   NA   NA    NA
-## var.age      0.436  0.435  0.419  0.406  0.434  0.412   NA   NA   NA    NA
-## var.gender  -0.102 -0.098 -0.102 -0.103 -0.045 -0.019   NA   NA   NA    NA
-## var.study   -0.122 -0.126 -0.100 -0.091 -0.056  0.172   NA   NA   NA    NA</code></pre>
+##           0.2163          -0.0885          -0.5713           0.6024 
+##  item4.slp.study item5.slp.gender 
+##          -0.0928          -0.1771</code></pre>
+<p>A plot of the regularization path also shows the remaining DIF
+effects.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit2)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>To produce other model results, the <code>fit2</code> object contains
+lists of the impact (latent variable) parameters, base (intercept and
+slope) item parameters, and DIF parameters for all values of the tuning
+parameter. For instance, the impact parameters are printed below.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fit2<span class="sc">$</span>impact</span></code></pre></div>
+<pre><code>##                [,1]    [,2]    [,3]    [,4]    [,5]    [,6] [,7] [,8] [,9]
+## mean.age     0.7042  0.7085  0.6934  0.7107  0.7693  0.9216   NA   NA   NA
+## mean.gender -0.1739 -0.1188 -0.0875 -0.0776 -0.0860 -0.1113   NA   NA   NA
+## mean.study   0.9585  0.9080  0.8750  0.8802  0.9030  0.9571   NA   NA   NA
+## var.age      0.4317  0.4433  0.4299  0.4359  0.4218  0.3716   NA   NA   NA
+## var.gender  -0.1006 -0.0902 -0.0918 -0.0655 -0.0586 -0.0219   NA   NA   NA
+## var.study   -0.1243 -0.1312 -0.1115 -0.0652  0.0364  0.2551   NA   NA   NA
+##             [,10]
+## mean.age       NA
+## mean.gender    NA
+## mean.study     NA
+## var.age        NA
+## var.gender     NA
+## var.study      NA</code></pre>
 <p>EAP scores and standard deviations may also be produced.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">lapply</span>(fit2<span class="op">$</span>eap, head)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(fit2<span class="sc">$</span>eap, head)</span></code></pre></div>
 <pre><code>## $scores
 ##            [,1]       [,2]       [,3]       [,4]       [,5]       [,6] [,7]
-## [1,] -1.8154255 -1.8707496 -1.9152125 -1.8490203 -1.8191629 -1.9636622   NA
-## [2,] -1.3354071 -1.3647273 -1.3736359 -1.3435034 -1.2882957 -1.1873038   NA
-## [3,] -1.2323978 -1.2210124 -1.1644336 -1.1753163 -1.1495209 -0.7501568   NA
-## [4,]  2.0818664  2.0633270  2.0218976  1.9922185  1.9668574  1.7628487   NA
-## [5,] -1.8154255 -1.8707496 -1.9152125 -1.8490203 -1.8191629 -1.9636622   NA
-## [6,] -0.3815382 -0.3929121 -0.4053502 -0.3809949 -0.3741594 -0.2721668   NA
+## [1,] -1.8130833 -1.8125184 -1.7896639 -1.7995627 -1.8526168 -2.0039661   NA
+## [2,] -1.3342935 -1.3320319 -1.3196124 -1.2915327 -1.2497203 -1.1606881   NA
+## [3,] -1.2256347 -1.2404596 -1.2275429 -1.1702650 -1.0116288 -0.6035783   NA
+## [4,]  2.0793250  2.0691533  2.0263565  1.9878598  1.9093402  1.6925890   NA
+## [5,] -1.8130833 -1.8125184 -1.7896639 -1.7995627 -1.8526168 -2.0039661   NA
+## [6,] -0.3805602 -0.3535745 -0.3491745 -0.3608825 -0.3627101 -0.2775264   NA
 ##      [,8] [,9] [,10]
 ## [1,]   NA   NA    NA
 ## [2,]   NA   NA    NA
@@ -426,12 +542,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## 
 ## $sd
 ##           [,1]      [,2]      [,3]      [,4]      [,5]      [,6] [,7] [,8] [,9]
-## [1,] 0.7948612 0.7949724 0.7915591 0.7934734 0.7556749 0.6873146   NA   NA   NA
-## [2,] 0.9321327 0.9315537 0.9199510 0.9140158 0.8823574 0.7836142   NA   NA   NA
-## [3,] 1.1492558 1.1477015 1.1174331 1.0943602 1.0720908 0.9062620   NA   NA   NA
-## [4,] 0.6987864 0.6964314 0.6891664 0.6781034 0.6556354 0.5806772   NA   NA   NA
-## [5,] 0.7948612 0.7949724 0.7915591 0.7934734 0.7556749 0.6873146   NA   NA   NA
-## [6,] 0.8568880 0.8546078 0.8430549 0.8292039 0.8073483 0.7058149   NA   NA   NA
+## [1,] 0.7966229 0.7916416 0.7898758 0.7653328 0.7362193 0.6776154   NA   NA   NA
+## [2,] 0.9317806 0.9313398 0.9215595 0.8948896 0.8499689 0.7514918   NA   NA   NA
+## [3,] 1.1450472 1.1535148 1.1257071 1.0902247 1.0105346 0.8287311   NA   NA   NA
+## [4,] 0.6973359 0.6949156 0.6865598 0.6655699 0.6289102 0.5495122   NA   NA   NA
+## [5,] 0.7966229 0.7916416 0.7898758 0.7653328 0.7362193 0.6776154   NA   NA   NA
+## [6,] 0.8553530 0.8510991 0.8372854 0.8165459 0.7742955 0.6711971   NA   NA   NA
 ##      [,10]
 ## [1,]    NA
 ## [2,]    NA
@@ -439,83 +555,94 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 ## [4,]    NA
 ## [5,]    NA
 ## [6,]    NA</code></pre>
-<p>Finally, when data include a large number of items, observations, and predictors, <code>regDIF()</code> can run relatively slowly. An alternative approach, which yields much faster results, is to provide an observed proxy for the latent scores. In the case of binary data, this might be sum scores. Note that using observed proxy scores is identical to performing a multivariate regression, where the item responses are regressed on the proxy scores and background variables. (The proxy scores are simultaneously regressed on the background variables as well.)</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>fit3 &lt;-<span class="st"> </span><span class="kw">regDIF</span>(item.data, pred.data, <span class="dt">prox.data =</span> <span class="kw">rowSums</span>(item.data))</span></code></pre></div>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">summary</span>(fit3)</span></code></pre></div>
+<p>Finally, when data include a large number of items, observations, and
+predictors, <code>regDIF()</code> can run relatively slowly. An
+alternative approach, which yields much faster results, is to provide an
+observed proxy for the latent scores. In the case of binary data, this
+might be sum scores. Note that using observed proxy scores is identical
+to performing a multivariate regression, where the item responses are
+regressed on the proxy scores and background variables. (The proxy
+scores are simultaneously regressed on the background variables as
+well.)</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>fit3 <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">prox.data =</span> <span class="fu">rowSums</span>(item.data), <span class="at">num.tau =</span> <span class="dv">20</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit3)</span></code></pre></div>
 <pre><code>## Call:
-## regDIF(item.data = item.data, pred.data = pred.data, prox.data = rowSums(item.data))
+## regDIF(item.data = item.data, pred.data = pred.data, prox.data = rowSums(item.data), 
+##     num.tau = 20)
 ## 
-## Optimal model (out of 100):
+## Optimal model (out of 20):
 ##          tau          bic 
-##    0.2241118 3550.1030000 
+##    0.2506739 3547.6463000 
 ## 
 ## Non-zero DIF effects:
 ## item3.int.gender    item4.int.age    item5.int.age item5.int.gender 
-##            0.121            0.339           -0.192           -0.589 
-##  item5.int.study item6.int.gender item2.slp.gender  item3.slp.study 
-##            0.519            0.035            0.144           -0.062 
+##           0.1220           0.2403          -0.0205          -0.5422 
+##  item5.int.study item6.int.gender item2.slp.gender  item4.slp.study 
+##           0.7356           0.0031           0.1388          -0.1627 
 ## item5.slp.gender 
-##           -0.126</code></pre>
-<p>The results show more DIF on both the intercepts (Items 3 and 6) and slopes (Items 2, 3, and 5).</p>
+##          -0.1602</code></pre>
+<p>The results show more DIF on both the intercepts (Items 3 and 6) and
+slopes (Items 2, 3, and 5).</p>
 </div>
 <div id="more-modeling-possibilities-with-regdif." class="section level2">
 <h2>More modeling possibilities with regDIF.</h2>
-<p>In addition to LASSO, other penalty functions are possible with <code>regDIF()</code>. For instance, the elastic net penalty combines LASSO and ridge functions, which is useful when many correlated predictors are evaluated for DIF. The elastic net is controlled by a second tuning parameter, <code>alpha</code>, and defaults to <code>alpha = 1</code>, corresponding to the LASSO penalty. In contrast, <code>alpha = 0</code> corresponds to the ridge penalty. When <code>alpha</code> is between 0 and 1, however, the elastic net is used to perform DIF selection. For brevity, observed proxy scores are used in all model fitting below.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>fit_net &lt;-<span class="st"> </span><span class="kw">regDIF</span>(item.data, pred.data, <span class="dt">prox.data =</span> <span class="kw">rowSums</span>(item.data), <span class="dt">alpha =</span> <span class="fl">.5</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="kw">summary</span>(fit_net)</span></code></pre></div>
+<p>In addition to LASSO, other penalty functions are possible with
+<code>regDIF()</code>. For instance, the elastic net penalty combines
+LASSO and ridge functions, which is useful when many correlated
+predictors are evaluated for DIF. The elastic net is controlled by a
+second tuning parameter, <code>alpha</code>, and defaults to
+<code>alpha = 1</code>, corresponding to the LASSO penalty. In contrast,
+<code>alpha = 0</code> corresponds to the ridge penalty. When
+<code>alpha</code> is between 0 and 1, however, the elastic net is used
+to perform DIF selection. For brevity, observed proxy scores are used in
+all model fitting below.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>fit_net <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">prox.data =</span> <span class="fu">rowSums</span>(item.data), <span class="at">num.tau =</span> <span class="dv">20</span>, <span class="at">alpha =</span> .<span class="dv">5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_net)</span></code></pre></div>
 <pre><code>## Call:
 ## regDIF(item.data = item.data, pred.data = pred.data, prox.data = rowSums(item.data), 
-##     alpha = 0.5)
+##     num.tau = 20, alpha = 0.5)
 ## 
-## Optimal model (out of 100):
+## Optimal model (out of 20):
 ##          tau          bic 
-##    0.4377184 3562.5710000 
+##    0.5605648 3568.9282000 
 ## 
 ## Non-zero DIF effects:
 ## item3.int.gender    item4.int.age    item5.int.age item5.int.gender 
-##            0.104            0.277           -0.209           -0.466 
-##  item5.int.study item6.int.gender item2.slp.gender  item3.slp.study 
-##            0.369            0.033            0.119           -0.054 
+##           0.0715           0.1703          -0.0958          -0.3511 
+##  item5.int.study item2.slp.gender  item4.slp.study    item5.slp.age 
+##           0.4398           0.0814          -0.1200          -0.0006 
 ## item5.slp.gender 
-##           -0.099</code></pre>
-<p>The final elastic net results yield the same DIF effects as the LASSO results, although the amount of penalization is greater for elastic net (i.e., larger <code>tau</code>).</p>
-<p>Because there are two tuning parameters – namely, <code>tau</code> and <code>alpha</code> – a grid search may be performed to identify the optimal degree of penalization.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>alpha_vec &lt;-<span class="st"> </span><span class="kw">seq</span>(.<span class="dv">1</span>, <span class="dv">1</span>, <span class="fl">.1</span>)</span>
-<span id="cb22-2"><a href="#cb22-2"></a>fit_net2 &lt;-<span class="st"> </span><span class="kw">replicate</span>(<span class="kw">length</span>(alpha_vec), <span class="ot">NA</span>, <span class="dt">simplify =</span> <span class="ot">FALSE</span>)</span>
-<span id="cb22-3"><a href="#cb22-3"></a></span>
-<span id="cb22-4"><a href="#cb22-4"></a><span class="cf">for</span>(a <span class="cf">in</span> <span class="kw">seq_along</span>(alpha_vec)) {</span>
-<span id="cb22-5"><a href="#cb22-5"></a>  fit_net2[[a]] &lt;-<span class="st"> </span><span class="kw">regDIF</span>(item.data, pred.data, <span class="dt">prox.data =</span> <span class="kw">rowSums</span>(item.data), <span class="dt">alpha =</span> alpha_vec[a])</span>
-<span id="cb22-6"><a href="#cb22-6"></a>}</span></code></pre></div>
-<pre><code>## Warning: Large increase in the number of DIF parameters from iteration 1 to 2.
-##   Two Options:
-##   1. Provide smaller differences between tau values.
-##   2. Provide anchor item(s).</code></pre>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a><span class="kw">which.min</span>(</span>
-<span id="cb24-2"><a href="#cb24-2"></a>  <span class="kw">sapply</span>(fit_net2, <span class="cf">function</span>(fit) <span class="kw">min</span>(fit<span class="op">$</span>bic, <span class="dt">na.rm =</span> T))</span>
-<span id="cb24-3"><a href="#cb24-3"></a>)</span></code></pre></div>
-<pre><code>## [1] 10</code></pre>
-<p>The minimum BIC across all models corresponds to the LASSO penalty model, i.e., <code>alpha = 1</code>.</p>
-<p>Other penalty functions include the minimax concave penalty (MCP) and the group extensions of LASSO and MCP, which penalize the intercept and slope DIF effects in tandem. The group LASSO function is shown below.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>fit_grp_mcp &lt;-<span class="st"> </span><span class="kw">regDIF</span>(item.data, pred.data, <span class="dt">prox.data =</span> <span class="kw">rowSums</span>(item.data), <span class="dt">pen.type =</span> <span class="st">&quot;grp.mcp&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="kw">summary</span>(fit_grp_mcp)</span></code></pre></div>
+##          -0.1406</code></pre>
+<p>The final elastic net results yield the same DIF effects as the LASSO
+results, although the amount of penalization is greater for elastic net
+(i.e., larger <code>tau</code>).</p>
+<p>Other penalty functions include the minimax concave penalty (MCP) and
+the group extensions of LASSO and MCP, which penalize the intercept and
+slope DIF effects in tandem. The group LASSO function is shown
+below.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fit_grp_mcp <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">prox.data =</span> <span class="fu">rowSums</span>(item.data), <span class="at">num.tau =</span> <span class="dv">20</span>, <span class="at">pen.type =</span> <span class="st">&quot;grp.mcp&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_grp_mcp)</span></code></pre></div>
 <pre><code>## Call:
 ## regDIF(item.data = item.data, pred.data = pred.data, prox.data = rowSums(item.data), 
-##     pen.type = &quot;grp.mcp&quot;)
+##     pen.type = &quot;grp.mcp&quot;, num.tau = 20)
 ## 
-## Optimal model (out of 100):
+## Optimal model (out of 20):
 ##          tau          bic 
-##    0.2960388 3543.9880000 
+##    0.4673465 3535.4418000 
 ## 
 ## Non-zero DIF effects:
-## item2.int.gender item3.int.gender    item4.int.age item5.int.gender 
-##            0.030            0.099            0.344           -0.793 
-##  item5.int.study item2.slp.gender item3.slp.gender    item4.slp.age 
-##            0.950            0.112           -0.025            0.095 
+##    item4.int.age item5.int.gender  item5.int.study    item4.slp.age 
+##           0.1472          -0.5585           0.7661           0.0980 
 ## item5.slp.gender  item5.slp.study 
-##           -0.499            0.170</code></pre>
-<p>Although the MCP results appear largely the same as the LASSO results, the group MCP function included both the intercept and slope for each background variable remaining in the final model.</p>
-<p>In summary, the regDIF R package provides a flexible implementation of using regularization to identify DIF across multiple background characteristics.</p>
-<p>Please reach out to <a href="mailto:wbelzak@gmail.com">wbelzak@gmail.com</a> for any questions, and remember to cite regDIF in your work. Thank you kindly!</p>
+##          -0.3758           0.2438</code></pre>
+<p>Although the MCP results appear largely the same as the LASSO
+results, the group MCP function included both the intercept and slope
+for each background variable remaining in the final model.</p>
+<p>In summary, the regDIF R package provides a flexible implementation
+of using regularization to identify DIF across multiple background
+characteristics.</p>
+<p>Please reach out to <a href="mailto:wbelzak@gmail.com">wbelzak@gmail.com</a> for any questions,
+and remember to cite regDIF in your work. Thank you kindly!</p>
 <pre><code>## 
 ## To cite regDIF in publications use:
 ## 

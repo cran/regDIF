@@ -14,6 +14,7 @@ postprocess(
   prox_data,
   mean_predictors,
   var_predictors,
+  item_type,
   tau_vec,
   num_tau,
   alpha,
@@ -27,7 +28,6 @@ postprocess(
   num_predictors,
   num_items,
   num_quad,
-  exit_code,
   NA_cases
 )
 }
@@ -53,6 +53,9 @@ impact equation.}
 
 \item{var_predictors}{Possibly different matrix of predictors for the
 variance impact equation.}
+
+\item{item_type}{Optional character value or vector indicating the type of
+item to be modeled.}
 
 \item{tau_vec}{Optional numeric vector of tau values.}
 
@@ -82,8 +85,6 @@ penalty function.}
 
 \item{num_quad}{Number of quadrature points used for approximating the
 latent variable.}
-
-\item{exit_code}{An integer indicating whether the regDIF procedure finished normally}
 
 \item{NA_cases}{Logical vector indicating NA cases.}
 }

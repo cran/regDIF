@@ -8,7 +8,7 @@
 #' impact equation.
 #' @param var_predictors Possibly different matrix of predictors for the
 #' variance impact equation.
-#' @param item_type Optional character value or vector indicating the type of
+#' @param item_type Character value or vector indicating the type of
 #' item to be modeled.
 #' @param theta Vector of fixed quadrature points.
 #' @param pen_type Character value indicating the penalty function to use.
@@ -25,6 +25,9 @@
 #' @param gamma Numeric value indicating the gamma parameter in the MCP
 #' function.
 #' @param pen Index for the tau vector.
+#' @param pen.deriv Logical value indicating whether to use the second
+#' derivative of the penalized parameter during regularization. The default is
+#' TRUE.
 #' @param anchor Optional numeric value or vector indicating which item
 #' response(s) are anchors (e.g., \code{anchor = 1}).
 #' @param final_control Control parameters.
@@ -37,10 +40,11 @@
 #' needs to be identified.
 #' @param optim_method Character value indicating the type of optimization
 #' method to use.
-#' @param em_history List to save EM iterations for supplemental EM algorithm.
-#' @param em_limit Logical value indicating whether the EM algorithm reached
+#' @param estimator_history List to save EM iterations for supplemental EM algorithm.
+#' @param estimator_limit Logical value indicating whether the EM algorithm reached
 #' the maxit limit in the previous estimation round.
 #' @param NA_cases Logical vector indicating if observation is missing.
+#' @param exit_code Integer indicating if the model has converged properly.
 #'
 #' @return a \code{"list"} of matrices with unprocessed model estimates
 #'
@@ -61,6 +65,7 @@ em_estimation <- function(p,
                           alpha,
                           gamma,
                           pen,
+                          pen.deriv,
                           anchor,
                           final_control,
                           samp_size,
@@ -70,9 +75,10 @@ em_estimation <- function(p,
                           num_quad,
                           adapt_quad,
                           optim_method,
-                          em_history,
-                          em_limit,
-                          NA_cases) {
+                          estimator_history,
+                          estimator_limit,
+                          NA_cases,
+                          exit_code) {
 
   # Maximization and print settings.
   lastp <- p
@@ -88,6 +94,7 @@ em_estimation <- function(p,
     eout <- if(is.null(prox_data)) Estep(p,
                                          item_data,
                                          pred_data,
+                                         item_type,
                                          mean_predictors,
                                          var_predictors,
                                          theta,
@@ -101,75 +108,41 @@ em_estimation <- function(p,
 
 
 
-    if(optim_method == "MNR") {
-      # M-step: Optimize parameters using multivariate NR.
-      mout <- Mstep_block(p,
-                          item_data,
-                          pred_data,
-                          prox_data,
-                          mean_predictors,
-                          var_predictors,
-                          eout,
-                          item_type,
-                          pen_type,
-                          tau_vec[pen],
-                          pen,
-                          alpha,
-                          gamma,
-                          anchor,
-                          final_control,
-                          samp_size,
-                          num_responses,
-                          num_items,
-                          num_quad,
-                          num_predictors,
-                          num_tau,
-                          max_tau = FALSE)
-    } else if(optim_method == "UNR") {
-      # M-step: Optimize parameters using one round of coordinate descent.
-      mout <- Mstep_cd(p,
-                       item_data,
-                       pred_data,
-                       mean_predictors,
-                       var_predictors,
-                       eout,
-                       item_type,
-                       pen_type,
-                       tau_vec[pen],
-                       pen,
-                       alpha,
-                       gamma,
-                       anchor,
-                       final_control,
-                       samp_size,
-                       num_responses,
-                       num_items,
-                       num_quad,
-                       num_predictors,
-                       num_tau,
-                       max_tau = FALSE)
-    } else if(optim_method == "CD") {
-      mout <- Mstep_cd2(p,
-                        item_data,
-                        pred_data,
-                        mean_predictors,
-                        var_predictors,
-                        eout,
-                        item_type,
-                        pen_type,
-                        tau_vec[pen],
-                        pen,
-                        alpha,
-                        gamma,
-                        anchor,
-                        final_control,
-                        samp_size,
-                        num_responses,
-                        num_items,
-                        num_quad,
-                        num_predictors,
-                        num_tau,
-                        max_tau = FALSE)
+    mout <- tryCatch(
+      {
+        Mstep_simple(p,
+                     item_data,
+                     pred_data,
+                     prox_data,
+                     mean_predictors,
+                     var_predictors,
+                     eout,
+                     item_type,
+                     pen_type,
+                     tau_vec[pen],
+                     pen,
+                     pen.deriv,
+                     alpha,
+                     gamma,
+                     anchor,
+                     final_control,
+                     samp_size,
+                     num_responses,
+                     num_items,
+                     num_quad,
+                     num_predictors,
+                     num_tau,
+                     max_tau = FALSE,
+                     optim_method)
+      },
+      error = function(e) {e; return(NULL)},
+      warning = function(w) {} )
+
+
+
+    if(is.null(mout)) {
+      exit_code <- 4
+      break
     }
 
     # Obtain parameter estimates.
@@ -183,39 +156,45 @@ em_estimation <- function(p,
     eout_obs_ll <- ifelse(is.null(eout), NA, eout$observed_ll)
 
     if(!is.null(eout)) {
-      em_history[[pen]][,iter] <- c(unlist(p), eout_obs_ll)
+      estimator_history[[pen]][,iter] <- c(unlist(p), eout_obs_ll)
     } else {
-      em_history[[pen]][,iter] <- NA
+      estimator_history[[pen]][,iter] <- NA
     }
 
 
     # Add row for next EM step.
-    if(eps > final_control$tol && !is.null(eout)) {
-      em_history[[pen]] <- cbind(em_history[[pen]],
-                                 matrix(0,ncol=1,nrow=length(unlist(p))+1))
+    if(eps > final_control$tol) {
+      estimator_history[[pen]] <- cbind(estimator_history[[pen]],
+                                        matrix(0,ncol=1,nrow=length(unlist(p))+1))
     }
 
     # Update parameter list.
     lastp <- p
 
+
     # Update the iteration number.
     iter = iter + 1
     if(iter == final_control$maxit) {
-      warning("EM iteration limit reached without convergence")
-      em_limit <- T
+      warning("Iteration limit reached without convergence", call. = FALSE, immediate. = TRUE)
+      estimator_limit <- T
+      exit_code <- exit_code + 1
     }
 
-    if(is.null(prox_data)) {
+    # if(final_control$optim.method == "CD") {
+    #   cat('\r', '                                         ',
+    #       sprintf("Models Completed: %d of %d  EM Iteration: %d  EM Change: %f",
+    #               pen - 1,
+    #               models_to_fit,
+    #               iter,
+    #               round(eps, nchar(final_control$tol))))
+    # } else {
       cat('\r', sprintf("Models Completed: %d of %d  Iteration: %d  Change: %f",
-                        pen,
+                        pen - 1,
                         models_to_fit,
                         iter,
                         round(eps, nchar(final_control$tol))))
-    } else {
-      cat('\r', sprintf("Models Completed: %d of %d   ",
-                        pen,
-                        models_to_fit))
-    }
+    # }
+
 
 
     utils::flush.console()
@@ -223,12 +202,26 @@ em_estimation <- function(p,
     # Stop estimation if model would become under-identified because of tau
     # being too small.
     if(mout$under_identified) break
-    if(!is.null(prox_data)) break
+    # if(!is.null(prox_data)) break
 
-    #
 
 
   }
+
+  if(exit_code == 4) return(NULL)
+
+  # eout <- if(!is.null(prox_data)) Estep_proxy(p,
+  #                                            item_data,
+  #                                            pred_data,
+  #                                            item_type,
+  #                                            mean_predictors,
+  #                                            var_predictors,
+  #                                            prox_data,
+  #                                            samp_size,
+  #                                            num_items,
+  #                                            num_responses,
+  #                                            get_eap = FALSE,
+  #                                            NA_cases = NA_cases)
 
   # Get information criteria.
   infocrit <- information_criteria(eout,
@@ -238,6 +231,7 @@ em_estimation <- function(p,
                                    prox_data,
                                    mean_predictors,
                                    var_predictors,
+                                   item_type,
                                    gamma,
                                    samp_size,
                                    num_responses,
@@ -249,6 +243,7 @@ em_estimation <- function(p,
     Estep(p,
           item_data,
           pred_data,
+          item_type,
           mean_predictors,
           var_predictors,
           theta,
@@ -266,75 +261,31 @@ em_estimation <- function(p,
   # Option to identify maximum value of tau which removes all DIF from model.
   if(id_tau) {
 
-    # Final M-step.
-    if(optim_method == "MNR") {
-      max_tau <- Mstep_block(p,
-                             item_data,
-                             pred_data,
-                             prox_data,
-                             mean_predictors,
-                             var_predictors,
-                             eout,
-                             item_type,
-                             pen_type,
-                             tau_vec[1],
-                             pen,
-                             alpha,
-                             gamma,
-                             anchor,
-                             final_control,
-                             samp_size,
-                             num_responses,
-                             num_items,
-                             num_quad,
-                             num_predictors,
-                             num_tau,
-                             max_tau = TRUE)
-    } else if(optim_method == "UNR") {
-      max_tau <- Mstep_cd(p,
-                          item_data,
-                          pred_data,
-                          mean_predictors,
-                          var_predictors,
-                          eout,
-                          item_type,
-                          pen_type,
-                          tau_vec[1],
-                          pen,
-                          alpha,
-                          gamma,
-                          anchor,
-                          final_control,
-                          samp_size,
-                          num_responses,
-                          num_items,
-                          num_quad,
-                          num_predictors,
-                          num_tau,
-                          max_tau = TRUE)
-    } else if(optim_method == "CD") {
-      max_tau <- Mstep_cd2(p,
-                           item_data,
-                           pred_data,
-                           mean_predictors,
-                           var_predictors,
-                           eout,
-                           item_type,
-                           pen_type,
-                           tau_vec[1],
-                           pen,
-                           alpha,
-                           gamma,
-                           anchor,
-                           final_control,
-                           samp_size,
-                           num_responses,
-                           num_items,
-                           num_quad,
-                           num_predictors,
-                           num_tau,
-                           max_tau = TRUE)
-    }
+    max_tau <- Mstep_simple(p,
+                     item_data,
+                     pred_data,
+                     prox_data,
+                     mean_predictors,
+                     var_predictors,
+                     eout,
+                     item_type,
+                     pen_type,
+                     tau_vec[1],
+                     pen,
+                     pen.deriv,
+                     alpha,
+                     gamma,
+                     anchor,
+                     final_control,
+                     samp_size,
+                     num_responses,
+                     num_items,
+                     num_quad,
+                     num_predictors,
+                     num_tau,
+                     max_tau = TRUE,
+                     optim_method)
+
 
   } else {
     max_tau <- NULL
@@ -342,12 +293,14 @@ em_estimation <- function(p,
 
   # Return model results.
   return(list(p=p,
-              complete_info=mout$inv_hess_diag,
+              # complete_info=mout$inv_hess_diag,
               infocrit=infocrit,
               max_tau=max_tau,
-              em_history=em_history,
+              # max_tau=mout$id_max_z,
+              estimator_history=estimator_history,
               under_identified=mout$under_identified,
-              em_limit=em_limit,
-              eap=eout_eap))
+              estimator_limit=estimator_limit,
+              eap=eout_eap,
+              exit_code=exit_code))
 
 }

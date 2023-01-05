@@ -20,6 +20,7 @@ em_estimation(
   alpha,
   gamma,
   pen,
+  pen.deriv,
   anchor,
   final_control,
   samp_size,
@@ -29,9 +30,10 @@ em_estimation(
   num_quad,
   adapt_quad,
   optim_method,
-  em_history,
-  em_limit,
-  NA_cases
+  estimator_history,
+  estimator_limit,
+  NA_cases,
+  exit_code
 )
 }
 \arguments{
@@ -49,7 +51,7 @@ impact equation.}
 \item{var_predictors}{Possibly different matrix of predictors for the
 variance impact equation.}
 
-\item{item_type}{Optional character value or vector indicating the type of
+\item{item_type}{Character value or vector indicating the type of
 item to be modeled.}
 
 \item{theta}{Vector of fixed quadrature points.}
@@ -75,6 +77,10 @@ function.}
 
 \item{pen}{Index for the tau vector.}
 
+\item{pen.deriv}{Logical value indicating whether to use the second
+derivative of the penalized parameter during regularization. The default is
+TRUE.}
+
 \item{anchor}{Optional numeric value or vector indicating which item
 response(s) are anchors (e.g., \code{anchor = 1}).}
 
@@ -96,12 +102,14 @@ needs to be identified.}
 \item{optim_method}{Character value indicating the type of optimization
 method to use.}
 
-\item{em_history}{List to save EM iterations for supplemental EM algorithm.}
+\item{estimator_history}{List to save EM iterations for supplemental EM algorithm.}
 
-\item{em_limit}{Logical value indicating whether the EM algorithm reached
+\item{estimator_limit}{Logical value indicating whether the EM algorithm reached
 the maxit limit in the previous estimation round.}
 
 \item{NA_cases}{Logical vector indicating if observation is missing.}
+
+\item{exit_code}{Integer indicating if the model has converged properly.}
 }
 \value{
 a \code{"list"} of matrices with unprocessed model estimates

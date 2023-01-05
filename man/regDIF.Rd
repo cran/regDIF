@@ -9,6 +9,7 @@ regDIF(item.data,
        prox.data = NULL,
        item.type = NULL,
        pen.type = NULL,
+       pen.deriv = FALSE,
        tau = NULL,
        num.tau = 100,
        alpha = 1,
@@ -36,11 +37,12 @@ item type. Different item types may be specified for a single model
 by providing a vector equal in length to the number of items in item.data.
 The options include:
 \itemize{
-   \item{\code{"Rasch"} - Slopes constrained to 1 and intercepts freely
+   \item{\code{"rasch"} - Slopes constrained to 1 and intercepts freely
    estimated.}
-   \item{\code{"2PL"} - Slopes and intercepts freely estimated.}
-   \item{\code{"Graded"} - Slopes, intercepts, and thresholds freely
-   estimated.}}}
+   \item{\code{"2pl"} - Slopes and intercepts freely estimated.}
+   \item{\code{"graded"} - Slopes, intercepts, and thresholds freely
+   estimated.}
+   \item{\code{"cfa"}}}}
 
 \item{pen.type}{Optional character value indicating the penalty
 function to use. The default is NULL, corresponding to the LASSO function.
@@ -55,6 +57,10 @@ The options include:
    selects intercept and slope DIF effects on each background characteristic
    together.}
    \item{\code{"grp.mcp"} - The group version of the MCP function.}}}
+
+\item{pen.deriv}{Logical value indicating whether to use the second
+derivative of the penalized parameter during regularization. The default is
+FALSE.}
 
 \item{tau}{Optional numeric vector of tau values \eqn{\ge} 0. If tau is
 supplied, this overrides the automatic construction of tau values.
@@ -96,7 +102,7 @@ optimization parameters. May be:
    variance impact. See above. Default includes all predictors in pred.data.}
    \item{tol}{Convergence threshold of EM algorithm. Default is
    \code{10^-5}.}
-   \item{maxit}{Maximum number of EM iterations. Default is \code{5000}.}
+   \item{maxit}{Maximum number of EM iterations. Default is \code{2000}.}
    \item{adapt.quad}{Logical value indicating whether to use adaptive
    quadrature to approximate the latent variable. The default is
    \code{FALSE}. NOTE: Adaptive quadrature is not supported yet.}
@@ -104,11 +110,13 @@ optimization parameters. May be:
    points to be used. For fixed-point quadrature, the default is \code{21}
    points when all item responses are binary or else \code{51} points if at
    least one item is ordered categorical.}
+   \item{int.limits}{Vector of 2 numeric values indicating the integral limits
+   for quadrature. Default is c(-6,6).}
    \item{optim.method}{Character value indicating which optimization method
-   to use. Default is "MNR", which updates the impact and item parameter
-   estimates using Multivariate Newton-Raphson. Another option is "UNR",
-   which updates estimates one-at-a-time using univariate Newton-Raphson, or
-   a single iteration of coordinate descent. A third option is "CD", or
+   to use. Default is "UNR", which updates estimates one-at-a-time using univariate
+   Newton-Raphson, or a single iteration of coordinate descent. Another option
+   is "MNR", which updates the impact and item parameter
+   estimates using Multivariate Newton-Raphson. A third option is "CD", or
    coordinate descent with complete iterations through all parameters
    until convergence. "MNR" will be faster in most cases,
    although "UNR" may achieve faster results when the number of

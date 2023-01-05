@@ -13,6 +13,8 @@
 #' impact equation.
 #' @param var_predictors Possibly different matrix of predictors for the
 #' variance impact equation.
+#' @param item_type Optional character value or vector indicating the type of
+#' item to be modeled.
 #' @param tau_vec Optional numeric vector of tau values.
 #' @param num_tau Logical indicating whether the minimum tau value needs to be
 #' identified during the regDIF procedure.
@@ -29,7 +31,6 @@
 #' @param num_items Number of items in dataset.
 #' @param num_quad Number of quadrature points used for approximating the
 #' latent variable.
-#' @param exit_code An integer indicating whether the regDIF procedure finished normally
 #' @param NA_cases Logical vector indicating NA cases.
 #'
 #' @return a \code{"list"} object of processed \code{"regDIF"} results
@@ -46,6 +47,7 @@ postprocess <-
            prox_data,
            mean_predictors,
            var_predictors,
+           item_type,
            tau_vec,
            num_tau,
            alpha,
@@ -59,17 +61,17 @@ postprocess <-
            num_predictors,
            num_items,
            num_quad,
-           exit_code,
            NA_cases) {
 
   # Get estimates and information criteria.
   p <- estimates$p
   infocrit <- estimates$infocrit
-  em_history <- estimates$em_history
-  complete_info <- estimates$complete_info
+  estimator_history <- estimates$estimator_history
+  # complete_info <- estimates$complete_info
   under_identified <- estimates$under_identified
   eap_scores <- estimates$eap$eap_scores
   eap_sd <- estimates$eap$eap_sd
+  exit_code <- estimates$exit_code
 
   # Organize impact parameters.
   if(is.null(control$impact.mean.data)) {
@@ -125,26 +127,26 @@ postprocess <-
   }
 
   for(item in 1:num_items) {
-    if(num_responses[item] == 1) {
+    if(item_type[item] == "cfa") {
       item_parms_base <- c(p2[grep(paste0("c0_item",item,"_"),names(p2))],
                            p2[grep(paste0("a0_item",item,"_"),names(p2))],
                            p2[grep(paste0("s0_item",item,"_"),names(p2))])
-      item_names_base <- c(paste0(item_names[item],".int"),
-                           paste0(item_names[item],".slp"),
-                           paste0(item_names[item],".res"))
+      item_names_base <- c(paste0(item_names[item],".int."),
+                           paste0(item_names[item],".slp."),
+                           paste0(item_names[item],".res."))
 
     } else if(num_responses[item] == 2) {
       item_parms_base <- c(p2[grep(paste0("c0_item",item,"_"),names(p2))],
                            p2[grep(paste0("a0_item",item,"_"),names(p2))])
-      item_names_base <- c(paste0(item_names[item],".int"),
-                           paste0(item_names[item],".slp"))
+      item_names_base <- c(paste0(item_names[item],".int."),
+                           paste0(item_names[item],".slp."))
 
-    } else if(num_responses[item] > 2) {
+    } else {
       item_parms_base <- c(p2[grep(paste0("c0_item",item,"_"),names(p2))],
                            p2[grep(paste0("a0_item",item,"_"),names(p2))])
-      item_names_base <- c(paste0(item_names[item],".int",
+      item_names_base <- c(paste0(item_names[item],".int.",
                                   1:(num_responses[item]-1)),
-                           paste0(item_names[item],".slp"))
+                           paste0(item_names[item],".slp."))
 
     }
     all_items_parms_base <- c(all_items_parms_base,item_parms_base)
@@ -153,18 +155,18 @@ postprocess <-
   }
 
   # Transform threshold values if ordered categorical item
-  for(item in 1:num_items) {
-    if(num_responses[item] > 2) {
-      threshold_parms <- p2[grep(paste0("c0_item",item,"_"),
-                            names(p2))][2:(num_responses[item]-1)]
-      intercept_parm <- p2[grep(paste0("c0_item",item,"_"),names(p2))][1]
+  if(any(item_type == "graded")) {
+    for(item in 1:num_items) {
+        if(item_type[item] == "graded") {
+          threshold_parms <- p2[grep(paste0("c0_item",item,"_"),
+                                     names(p2))][2:(num_responses[item]-1)]
+          intercept_parm <- p2[grep(paste0("c0_item",item,"_"),names(p2))][1]
 
-      all_items_parms_base[grep(paste0("c0_item",item,"_"),
-                                names(all_items_parms_base))][2:(
-                                  num_responses[item]-1)] <-
-        intercept_parm - threshold_parms
-    } else {
-      next
+          all_items_parms_base[grep(paste0("c0_item",item,"_"),
+                                    names(all_items_parms_base))][2:(
+                                      num_responses[item]-1)] <-
+            intercept_parm - threshold_parms
+        }
     }
   }
 
@@ -183,7 +185,7 @@ postprocess <-
   }
 
   for(item in 1:num_items) {
-    if(num_responses[item] == 1) {
+    if(item_type[item] == "cfa") {
       item_parms_dif <- c(p2[grep(paste0("c1_item",item,"_"),names(p2),fixed=T)],
                           p2[grep(paste0("a1_item",item,"_"),names(p2),fixed=T)],
                           p2[grep(paste0("s1_item",item,"_"),names(p2),fixed=T)])
@@ -222,46 +224,47 @@ postprocess <-
     return(final)
     }
 
-  # Assign rest of output to final list.
+
+
+  # Order item parms# Assign rest of output to final list.
   final$tau_vec[pen] <- tau_vec[pen]
-  final$aic[pen] <- round(infocrit$aic,3)
-  final$bic[pen] <- round(infocrit$bic,3)
-  final$impact[,pen] <- round(lv_parms,3)
-  final$base[,pen] <- round(all_items_parms_base,3)
-  final$dif[,pen] <- round(all_items_parms_dif,3)
+  final$aic[pen] <- round(infocrit$aic,4)
+  final$bic[pen] <- round(infocrit$bic,4)
+  final$impact[,pen] <- round(lv_parms,4)
+  final$base[,pen] <- round(all_items_parms_base,4)
+  final$dif[,pen] <- round(all_items_parms_dif,4)
   if(is.null(prox.data)) {
     final$eap$scores[,pen] <- eap_scores
     final$eap$sd[,pen] <- eap_sd
-    final$em_history[[pen]] <- em_history[[pen]]
+    final$estimator_history[[pen]] <- estimator_history[[pen]]
   }
-  final$complete_ll_info <- complete_info
+  # final$complete_ll_info <- complete_info
   final$log_like[pen] <- infocrit$complete_ll
   final$data <- list(item.data=item.data, pred.data=pred.data, prox.data=prox.data)
   rownames(final$impact) <- lv_names
   rownames(final$base) <- all_items_names_base
   rownames(final$dif) <- all_items_names_dif
-  if(!(any(num_responses > 2)) && !is.null(complete_info)) {
-    for(item in 1:num_items) {
-      names(final$complete_ll_info[[item]]) <- names(p[[item]])
-    }
-    names(final$complete_ll_info[[num_items+1]]) <- names(p[[num_items+1]])
-    names(final$complete_ll_info[[num_items+2]]) <- names(p[[num_items+2]])
-  }
-  final$exit_code <- ifelse(exit_code == 0, 0, 1)
+  # if(!(any(num_responses > 2)) && !is.null(complete_info)) {
+  #   for(item in 1:num_items) {
+  #     names(final$complete_ll_info[[item]]) <- names(p[[item]])
+  #   }
+  #   names(final$complete_ll_info[[num_items+1]]) <- names(p[[num_items+1]])
+  #   names(final$complete_ll_info[[num_items+2]]) <- names(p[[num_items+2]])
+  # }
+  final$exit_code <- exit_code
   final$missing_obs <- which(NA_cases)
 
-  # Order item parms.
   final_int_thr_base <-
-    final$base[grep(paste0(c(".int",".thr"),
+    final$base[grep(paste0(c("\\.int\\.","\\.thr\\."),
                            collapse = "|"),
                     rownames(final$base)),
                pen]
   final_slp_base <-
-    final$base[grep(".slp",
+    final$base[grep("\\.slp\\.",
                     rownames(final$base)),
                pen]
   final_res_base <-
-    final$base[grep(".res",
+    final$base[grep("\\.res\\.",
                     rownames(final$base)),
                pen]
   final_names_base <-
@@ -270,13 +273,13 @@ postprocess <-
     matrix(c(final_int_thr_base,final_slp_base,final_res_base), ncol = 1)
   rownames(final$base) <- final_names_base
 
-  final_int_dif <- final$dif[grep(".int",
+  final_int_dif <- final$dif[grep("\\.int\\.",
                                   rownames(final$dif)),
                              pen]
-  final_slp_dif <- final$dif[grep(".slp",
+  final_slp_dif <- final$dif[grep("\\.slp\\.",
                                   rownames(final$dif)),
                              pen]
-  final_res_dif <- final$dif[grep(".res..",
+  final_res_dif <- final$dif[grep("\\.res\\.",
                                   rownames(final$dif)),
                              pen]
   final_names_dif <- names(c(final_int_dif,final_slp_dif,final_res_dif))
@@ -308,16 +311,17 @@ postprocess <-
   dif_parms <- p2[grep(paste0("cov"),names(p2))]
 
   # Warn if tau does not remove all DIF
-  if(is.null(anchor) &&
-     pen == 1 &&
-     sum(abs(dif_parms)) > 0 &&
-     alpha == 1 &&
-     num_tau >= 10) {
-    warning(paste0("\nAutomatically-generated or user-defined ",
-                   "tau value is too small to penalize all parameters to ",
-                   "zero without anchor item. Larger values of tau are ",
-                   "recommended."))
-  }
+  # if(is.null(anchor) &&
+  #    pen == 1 &&
+  #    sum(abs(dif_parms)) > 0 &&
+  #    alpha == 1 &&
+  #    num_tau >= 10
+  #    ) {
+  #   warning(paste0("\nAutomatically-generated or user-defined ",
+  #                  "tau value is too small to penalize all parameters to ",
+  #                  "zero without anchor item. Larger values of tau are ",
+  #                  "recommended."), call. = FALSE)
+  # }
 
   # Print information about optimization.
   if(is.null(prox.data)) {

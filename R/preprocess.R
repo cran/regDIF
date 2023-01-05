@@ -50,9 +50,9 @@ preprocess <-
   item.data <- item.data[!NA_cases,]
   pred.data <-
     if(is.null(dim(pred.data))) {
-      pred.data[!NA_cases]
+      as.matrix(pred.data[!NA_cases])
     } else {
-      pred.data[!NA_cases,]
+      as.matrix(pred.data[!NA_cases,])
     }
 
   prox.data <- if(!is.null(prox.data)) prox.data[!NA_cases]
@@ -64,16 +64,22 @@ preprocess <-
                         maxit = 2000,
                         adapt.quad = FALSE,
                         num.quad = 21,
-                        optim.method = "MNR",
+                        int.limits = if(any(item.type == "cfa")) {c(-3,3)} else {c(-6,6)},
+                        optim.method = "UNR",
                         start.values = list())
   if(length(control) > 0) final_control[names(control)] <- control
 
   # Pre-process warnings.
-  if(!(any(item.type == "Rasch") ||
-       any(item.type == "2PL") ||
-       any(item.type == "Graded") ||
+  # if(final_control$optim.method == "CD" && final_control$parallel[[1]]) {
+  #   stop(paste0("Parallel computing is not supported for coordinate descent. Use \"UNR\" or ",
+  #               "\"MNR\" for binary item responses or \"UNR\" for categorical item responses."))
+  # }
+  if(!(any(item.type == "rasch") ||
+       any(item.type == "2pl") ||
+       any(item.type == "graded") ||
+       any(item.type == "cfa") ||
        any(is.null(item.type)))) {
-    stop(paste0("Item response types must either be Rasch, 2PL, or Graded."),
+    stop("Item response types must be \"rasch\", \"2pl\", \"graded\", or \"cfa\".",
          call. = FALSE)
   }
   if(any(tau < 0)) {
@@ -90,15 +96,17 @@ preprocess <-
   if(!is.null(anchor) && !is.numeric(anchor)) {
     stop("Anchor items must be numeric (e.g., anchor = 1).", call. = FALSE)
   }
-  if(!is.null(prox.data) && final_control$optim.method == "UNR") {
-    stop("Coordinate descent is not yet supported when using observed proxy scores.", call. = FALSE)
-  }
+  # if(!is.null(prox.data) && final_control$optim.method == "UNR") {
+  #   stop("Coordinate descent is not yet supported when using observed proxy scores.", call. = FALSE)
+  # }
   if(final_control$adapt.quad == T) {
     warning(paste0("Adaptive quadrature is not fully supported. Fixed-point ",
                    "quadrature is recommended at this time."), call. = FALSE, immediate. = TRUE)
   }
   if(any(NA_cases)) {
-    warning(paste0("Removed observations with missing values (NA)."), call. = FALSE,
+    warning(paste0("Removed the following cases with missing values (NA) - ",
+                   paste0(which(NA_cases), collapse = ", ")),
+            call. = FALSE,
     immediate. = TRUE)
   }
 
@@ -113,13 +121,13 @@ preprocess <-
   }
 
   # Speed up computation.
-  item_data <- as.matrix(sapply(item.data,as.numeric))
-  pred_data <- as.matrix(sapply(pred.data,as.numeric))
+  item_data <- as.matrix(apply(as.matrix(item.data),2,as.numeric))
+  pred_data <- as.matrix(apply(as.matrix(pred.data),2,as.numeric))
   prox_data <- if(!is.null(prox.data)) scale(as.matrix(as.numeric(prox.data)))
   mean_predictors <-
-    as.matrix(sapply(final_control$impact.mean.data,as.numeric))
+    as.matrix(apply(as.matrix(final_control$impact.mean.data),2,as.numeric))
   var_predictors <-
-    as.matrix(sapply(final_control$impact.var.data,as.numeric))
+    as.matrix(apply(as.matrix(final_control$impact.var.data),2,as.numeric))
 
   # Remove any variables with no variance.
   item_data_no_var <- apply(item_data, 2, var) == 0
@@ -137,30 +145,44 @@ preprocess <-
             call. = FALSE, immediate. = TRUE)
   }
 
-  if(ncol(as.matrix(final_control$impact.mean.data)) != ncol(pred_data)) {
-    mean_predictors <- mean_predictors[,!(names(pred.data) %in% names(pred.data)[pred_data_no_var])]
-  }
-
-  if(ncol(as.matrix(final_control$impact.var.data)) != ncol(pred_data)) {
-    var_predictors <- var_predictors[,!(names(pred.data) %in% names(pred.data)[pred_data_no_var])]
-  }
+  # if(ncol(as.matrix(final_control$impact.mean.data)) != ncol(pred_data)) {
+  #   mean_predictors <- mean_predictors[,!(names(pred.data) %in% names(pred.data)[pred_data_no_var])]
+  # }
+  #
+  # if(ncol(as.matrix(final_control$impact.var.data)) != ncol(pred_data)) {
+  #   var_predictors <- var_predictors[,!(names(pred.data) %in% names(pred.data)[pred_data_no_var])]
+  # }
 
   # Get dimensions of data.
   samp_size <- dim(item_data)[1]
   num_items <- dim(item_data)[2]
   num_predictors <- dim(pred_data)[2]
 
-  # Get muliple characters of item.type for number of items.
-  if(length(item.type) == 1 | is.null(item.type)) {
-    if(is.null(item.type)) item.type <- "2PL"
-    item_type <- rep(item.type, num_items)
+  # Determine initial number of responses
+  num_responses <-
+    as.vector(apply(item_data, 2, function(x) length(unique(na.omit(x)))))
+
+
+  # Get multiple characters of item.type for number of items.
+  if(is.null(item.type)) {
+    item_type <- sapply(1:num_items, function(item) {
+      if(num_responses[item] == 2) {
+        tmp = '2pl'
+      } else if (num_responses[item] > 2 && num_responses[item] < 7) {
+        tmp = 'graded'
+      } else if (num_responses[item] > 6) {
+        tmp = 'cfa'
+      }
+      return(tmp)
+      })
+  } else if(length(item.type) == 1) {
+    item_type = rep(item.type, num_items)
   }
 
   # Get item response types.
-  num_responses <- rep(1,num_items)
-  cat_items <- item_type == "Rasch" |
-    item_type == "2PL" |
-    item_type == "Graded"
+  cat_items <- item_type == 'rasch' |
+                     item_type == '2pl' |
+                     item_type == 'graded'
   if(any(cat_items)) {
     item_data[,which(cat_items)] <-
       apply(item.data[,which(cat_items)],
@@ -172,22 +194,29 @@ preprocess <-
             function(x) length(unique(na.omit(x))))
   }
 
-  if(any(num_responses > 2)) {
-    if(is.null(control$optim.method) || control$optim.method == "MNR") {
-      warning(paste0("Ordered categorical item responses are not yet supported with ",
-                     "Multivariate Newton-Raphson (MNR). Using Univariate Newton-Raphson ",
-                     "(UNR) instead."), call. = FALSE, immediate. = TRUE)
-    }
-    final_control$optim.method <- "UNR"
-  }
+  # if(any(item_type == 'graded')) {
+  #   if(is.null(control$optim.method)) {
+  #     warning(paste0("Graded item response types are not yet supported with ",
+  #                    "Multivariate Newton-Raphson (MNR). Using Univariate Newton-Raphson ",
+  #                    "(UNR) instead."), call. = FALSE, immediate. = TRUE)
+  #     final_control$optim.method <- "UNR"
+  #   }
+  # }
 
   # Update number of quad pts for ordered categorical or guassian items.
   if(any(num_responses != 2) && final_control$num.quad == 21) {
-    final_control$num.quad <- 51
+    if(any(num_responses > 6)) {
+      final_control$num.quad <- 101
+    } else {
+      final_control$num.quad <- 51
+    }
   }
 
+
+
   # Define fixed quadrature points.
-  theta <- seq(-6, 6, length.out = final_control$num.quad)
+  theta <- seq(final_control$int.limits[1],
+               final_control$int.limits[2], length.out = final_control$num.quad)
 
   if(final_control$adapt.quad == F && final_control$num.quad < 21) {
     warning(paste0("When using fixed quadrature, greater than 20 points for ",
@@ -215,27 +244,7 @@ preprocess <-
   for(item in 1:num_items){
 
     # Different item response types.
-    if(num_responses[item] > 2) {
-      p[[item]] <- c(0,
-                     seq(.25,1,length.out = num_responses[item]-2),
-                     1,
-                     rep(0, num_predictors),
-                     rep(0, num_predictors))
-      names(p[[item]]) <- c(paste0('c0_item',item,"_int",
-                                   1:(num_responses[item]-1)),
-                            paste0('a0_item',item,"_"),
-                            paste0('c1_item',item,"_cov",1:num_predictors),
-                            paste0('a1_item',item,"_cov",1:num_predictors))
-    } else if(num_responses[item] == 2) {
-      p[[item]] <- c(0,
-                     1,
-                     rep(0, num_predictors),
-                     rep(0, num_predictors))
-      names(p[[item]]) <- c(paste0('c0_item',item,"_int1"),
-                            paste0('a0_item',item,"_"),
-                            paste0('c1_item',item,"_cov",1:num_predictors),
-                            paste0('a1_item',item,"_cov",1:num_predictors))
-    } else if(num_responses[item] == 1) {
+    if(item_type[item] == "cfa") {
       p[[item]] <- c(mean(item_data[,item]),
                      sqrt(.5*var(item_data[,item])),
                      rep(0, num_predictors),
@@ -248,8 +257,30 @@ preprocess <-
                             paste0('a1_item',item,"_cov",1:num_predictors),
                             paste0('s0_item',item, "_"),
                             paste0('s1_item',item,"_cov",1:num_predictors))
+    } else if(num_responses[item] == 2) {
+      p[[item]] <- c(0,
+                     1,
+                     rep(0, num_predictors),
+                     rep(0, num_predictors))
+      names(p[[item]]) <- c(paste0('c0_item',item,"_int1"),
+                            paste0('a0_item',item,"_"),
+                            paste0('c1_item',item,"_cov",1:num_predictors),
+                            paste0('a1_item',item,"_cov",1:num_predictors))
+    } else {
+      p[[item]] <- c(0,
+                     seq(.25,1,length.out = num_responses[item]-2),
+                     1,
+                     rep(0, num_predictors),
+                     rep(0, num_predictors))
+      names(p[[item]]) <- c(paste0('c0_item',item,"_int",
+                                   1:(num_responses[item]-1)),
+                            paste0('a0_item',item,"_"),
+                            paste0('c1_item',item,"_cov",1:num_predictors),
+                            paste0('a1_item',item,"_cov",1:num_predictors))
     }
-  }
+
+    }
+
 
   p[[(num_items+1)]] <- rep(0,ncol(mean_predictors))
   p[[(num_items+2)]] <- rep(0,ncol(var_predictors))
@@ -279,7 +310,7 @@ preprocess <-
     }
   }
 
-  if(any(item.type == "cfa")){
+  if(any(item_type == "cfa")){
     num_base_parms <- length(c(unlist(p)[grep('c0',names(unlist(p)))],
                                unlist(p)[grep('a0',names(unlist(p)))],
                                unlist(p)[grep('s0',names(unlist(p)))]))
@@ -307,7 +338,7 @@ preprocess <-
                                     nrow=length(NA_cases)),
                            sd = matrix(NA,ncol=final_length,
                                        nrow=length(NA_cases))),
-                em_history = lapply(1:num.tau,
+                estimator_history = lapply(1:num.tau,
                                     function(x) {
                                       mat <- matrix(0,
                                                     ncol=1,
@@ -319,7 +350,9 @@ preprocess <-
                 log_lik = NA,
                 complete_ll_info = list(),
                 data = vector("list",3),
+                exit_code = 0,
                 call = call)
+
   return(list(p = p,
               final = final,
               item_data = item_data,
@@ -341,8 +374,8 @@ preprocess <-
               num_quad = final_control$num.quad,
               adapt_quad = final_control$adapt.quad,
               optim_method = final_control$optim.method,
-              em_history = final$em_history,
-              em_limit = F,
+              estimator_history = final$estimator_history,
+              estimator_limit = F,
               exit_code = 0,
               NA_cases = NA_cases))
 
