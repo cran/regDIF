@@ -5,9 +5,7 @@
 #' penalized expectation-maximization algorithm.
 #'
 #' @name regDIF-package
-#' @docType package
 #' @title Regularized differential item functioning for IRT and CFA models.
 #' @author William Belzak \email{wbelzak@@gmail.com}
-#' @exportMethod coef plot print
 #' @keywords package
 NULL

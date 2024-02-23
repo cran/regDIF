@@ -1,17 +1,13 @@
-citHeader("To cite regDIF in publications use:")
-
-citEntry(
+bibentry(
+  bibtype      = "article",
+  journal      = "Structural Equation Modeling: A Multidisciplinary Journal",
   entry        = "manual",
-  title        = "regDIF: Regularized Differential Item Functioning",
+  title        = "The regDIF R Package: Evaluating Complex Sources of Measurement Bias Using Regularized Differential Item Functioning",
   author       = "William C. M. Belzak",
   organization = "Duolingo",
   address      = "Pittsburgh, PA",
-  note         = "version 1.0.0",
-  year         = "2021",
-  url          = "https://github.com/wbelzak/regDIF/",
-  textVersion  = paste("Belzak, W. C. M (2021).",
-                       "regDIF: Regularized Differential Item Functioning.",
-                       "version 1.0.0. Duolingo. Pittsburgh, PA.",
-                       "https://github.com/wbelzak/regDIF/"
-  )
-)
+  year         = "2023",
+  url          = "https://doi.org/10.1080/10705511.2023.2170235",
+  textVersion  = "Belzak, W. C. M. (2023). The regDIF R Package: Evaluating Complex Sources of Measurement Bias Using Regularized Differential Item Functioning. Structural Equation Modeling: A Multidisciplinary Journal, 74-984, DOI: 10.1080/10705511.2023.2170235",
+  header       = "This package can be cited as:",
+  footer = "This free open-source software implements academic research by the authors and co-workers. If you use it, please support the project by citing the appropriate journal articles.")

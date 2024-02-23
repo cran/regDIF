@@ -3,7 +3,7 @@
 <!-- badges: start -->
 
 [![Travis build
-status](https://travis-ci.org/wbelzak/regDIF.svg?branch=master)](https://travis-ci.org/wbelzak/regDIF)
+status](https://travis-ci.org/wbelzak/regDIF.svg?branch=master)](https://app.travis-ci.com/wbelzak/regDIF)
 <!-- badges: end -->
 
 # regDIF: Regularized Differential Item Functioning
@@ -12,7 +12,7 @@ This R package performs regularization of differential item functioning
 (DIF) parameters in item response theory (IRT) models using a penalized
 expectation-maximization algorithm.
 
-## Version 1.1.0 Features
+## Version 1.1.1 Features
 
 regDIF can:
 

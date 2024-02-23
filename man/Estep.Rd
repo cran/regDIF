@@ -44,14 +44,14 @@ variance impact equation.}
 
 \item{num_responses}{Number of responses for each item.}
 
+\item{adapt_quad}{Logical indicating whether to use adaptive quadrature.}
+
 \item{num_quad}{Number of quadrature points used for approximating the
 latent variable.}
 
 \item{get_eap}{Logical indicating whether to compute EAP scores.}
 
 \item{NA_cases}{Logical vector indicating missing observations.}
-
-\item{adaptive_quad}{Logical indicating whether to use adaptive quadrature.}
 }
 \value{
 a \code{"list"} of posterior values from the expectation step

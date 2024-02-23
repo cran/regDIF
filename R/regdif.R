@@ -8,7 +8,7 @@
 #'        prox.data = NULL,
 #'        item.type = NULL,
 #'        pen.type = NULL,
-#'        pen.deriv = FALSE,
+#'        pen.deriv = TRUE,
 #'        tau = NULL,
 #'        num.tau = 100,
 #'        alpha = 1,
@@ -53,7 +53,7 @@
 #'    \item{\code{"grp.mcp"} - The group version of the MCP function.}}
 #' @param pen.deriv Logical value indicating whether to use the second
 #' derivative of the penalized parameter during regularization. The default is
-#' FALSE.
+#' TRUE.
 #' @param tau Optional numeric vector of tau values \eqn{\ge} 0. If tau is
 #' supplied, this overrides the automatic construction of tau values.
 #' Must be non-negative and in descending order, from largest
@@ -139,7 +139,7 @@ regDIF <- function(item.data,
                    prox.data = NULL,
                    item.type = NULL,
                    pen.type = NULL,
-                   pen.deriv = FALSE,
+                   pen.deriv = TRUE,
                    tau = NULL,
                    num.tau = 100,
                    alpha = 1,

@@ -12,7 +12,7 @@
 #' @param samp_size Sample size in dataset.
 #' @param num_items Number of items in dataset.
 #' @param num_responses Number of responses for each item.
-#' @param adaptive_quad Logical indicating whether to use adaptive quadrature.
+#' @param adapt_quad Logical indicating whether to use adaptive quadrature.
 #' @param num_quad Number of quadrature points used for approximating the
 #' latent variable.
 #' @param get_eap Logical indicating whether to compute EAP scores.

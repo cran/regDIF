@@ -9,7 +9,7 @@ regDIF(item.data,
        prox.data = NULL,
        item.type = NULL,
        pen.type = NULL,
-       pen.deriv = FALSE,
+       pen.deriv = TRUE,
        tau = NULL,
        num.tau = 100,
        alpha = 1,
@@ -60,7 +60,7 @@ The options include:
 
 \item{pen.deriv}{Logical value indicating whether to use the second
 derivative of the penalized parameter during regularization. The default is
-FALSE.}
+TRUE.}
 
 \item{tau}{Optional numeric vector of tau values \eqn{\ge} 0. If tau is
 supplied, this overrides the automatic construction of tau values.

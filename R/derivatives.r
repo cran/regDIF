@@ -411,11 +411,11 @@ d_impact_block_proxy <-
 #' @param p_item Vector of item parameters.
 #' @param etable_item E-table for item.
 #' @param theta Matrix of adaptive theta values.
-#' @param pred.data Matrix or dataframe of DIF and/or impact predictors.
+#' @param pred_data Matrix or dataframe of DIF and/or impact predictors.
 #' @param cov Covariate being maximized.
 #' @param samp_size Sample size in dataset.
 #' @param num_items Number of items in dataset.
-#' @param num.quad Number of quadrature points used for approximating the
+#' @param num_quad Number of quadrature points used for approximating the
 #' latent variable.
 #'
 #' @return a \code{"list"} of first and second partial derivatives for Bernoulli item likelihood (to

@@ -355,8 +355,8 @@ item responses (binary) and 3 background characteristics – namely, age
 <p>DIF was generated to be on items 2 (age, gender, study), 3 (age,
 gender, study), 4 (age), and 5 (gender, study), for both intercepts and
 slopes.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(regDIF)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ida)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(regDIF)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">head</span>(ida)</span></code></pre></div>
 <pre><code>##   item1 item2 item3 item4 item5 item6 age gender study
 ## 1     0     0     0     0     0     0  -2     -1    -1
 ## 2     0     0     0     0     0     0   0     -1    -1
@@ -368,88 +368,102 @@ slopes.</p>
 data (background variables) before running <code>regDIF()</code>. A
 single value of the tuning parameter, <code>tau = 2</code>, is then fit
 to the data.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>item.data <span class="ot">&lt;-</span> regDIF<span class="sc">::</span>ida[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pred.data <span class="ot">&lt;-</span> regDIF<span class="sc">::</span>ida[,<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>]</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">tau =</span> <span class="dv">2</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>item.data <span class="ot">&lt;-</span> regDIF<span class="sc">::</span>ida[,<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>pred.data <span class="ot">&lt;-</span> regDIF<span class="sc">::</span>ida[,<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">tau =</span> <span class="dv">2</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div>
 <pre><code>## Call:
 ## regDIF(item.data = item.data, pred.data = pred.data, tau = 2)
 ## 
 ## Optimal model (out of 1):
 ##      tau      bic 
-##    2.000 4133.959 
+##    2.000 4161.704 
 ## 
-## Non-zero DIF effects:</code></pre>
+## Non-zero DIF effects:
+##    item1.int.age item1.int.gender  item1.int.study item2.int.gender 
+##          -0.0723           0.0274           0.1315          -0.0232 
+##  item2.int.study    item3.int.age item3.int.gender    item5.int.age 
+##          -0.0291          -0.3897           0.2731          -0.6745 
+## item5.int.gender  item5.int.study    item6.int.age item6.int.gender 
+##          -0.6913           0.5488          -0.1515           0.0293 
+##  item6.int.study    item1.slp.age item1.slp.gender  item1.slp.study 
+##           0.0590           0.0012          -0.0091          -0.4055 
+##    item2.slp.age item2.slp.gender  item2.slp.study    item3.slp.age 
+##           0.0321           0.0881          -0.1406          -0.0255 
+## item3.slp.gender  item3.slp.study    item4.slp.age  item4.slp.study 
+##          -0.2028          -0.5129           0.0631          -0.6216 
+## item5.slp.gender  item5.slp.study item6.slp.gender  item6.slp.study 
+##          -0.5273          -0.0769          -0.0012          -0.3516</code></pre>
 <p>The <code>summary()</code> function shows that no DIF effects remain
 in the model. Only the latent variable parameters and base item
 parameters, which were not penalized at all, are estimated to be
 non-zero. This is shown by using the <code>coef</code> method.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(fit)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">coef</span>(fit)</span></code></pre></div>
 <pre><code>## $tau
 ## [1] 2
 ## 
 ## $impact
 ##                [,1]
-## mean.age     0.7059
-## mean.gender -0.1744
-## mean.study   0.9611
-## var.age      0.4361
-## var.gender  -0.1017
-## var.study   -0.1221
+## mean.age     0.9964
+## mean.gender -0.1252
+## mean.study   0.9213
+## var.age      0.2732
+## var.gender  -0.0085
+## var.study    0.4140
 ## 
 ## $base
 ##               [,1]
-## item1.int. -0.7385
-## item2.int. -1.0813
-## item3.int. -1.3993
-## item4.int. -2.1289
-## item5.int. -1.5276
-## item6.int. -2.3278
-## item1.slp.  0.9842
-## item2.slp.  0.9637
-## item3.slp.  0.9215
-## item4.slp.  1.3943
-## item5.slp.  1.1719
-## item6.slp.  1.3460
+## item1.int. -0.6185
+## item2.int. -1.0141
+## item3.int. -1.4054
+## item4.int. -1.9915
+## item5.int. -1.7821
+## item6.int. -2.1775
+## item1.slp.  0.9661
+## item2.slp.  0.9788
+## item3.slp.  1.2127
+## item4.slp.  1.4989
+## item5.slp.  1.4708
+## item6.slp.  1.3571
 ## 
 ## $dif
-##                  [,1]
-## item1.int.age       0
-## item1.int.gender    0
-## item1.int.study     0
-## item2.int.age       0
-## item2.int.gender    0
-## item2.int.study     0
-## item3.int.age       0
-## item3.int.gender    0
-## item3.int.study     0
-## item4.int.age       0
-## item4.int.gender    0
-## item4.int.study     0
-## item5.int.age       0
-## item5.int.gender    0
-## item5.int.study     0
-## item6.int.age       0
-## item6.int.gender    0
-## item6.int.study     0
-## item1.slp.age       0
-## item1.slp.gender    0
-## item1.slp.study     0
-## item2.slp.age       0
-## item2.slp.gender    0
-## item2.slp.study     0
-## item3.slp.age       0
-## item3.slp.gender    0
-## item3.slp.study     0
-## item4.slp.age       0
-## item4.slp.gender    0
-## item4.slp.study     0
-## item5.slp.age       0
-## item5.slp.gender    0
-## item5.slp.study     0
-## item6.slp.age       0
-## item6.slp.gender    0
-## item6.slp.study     0</code></pre>
+##                     [,1]
+## item1.int.age    -0.0723
+## item1.int.gender  0.0274
+## item1.int.study   0.1315
+## item2.int.age     0.0000
+## item2.int.gender -0.0232
+## item2.int.study  -0.0291
+## item3.int.age    -0.3897
+## item3.int.gender  0.2731
+## item3.int.study   0.0000
+## item4.int.age     0.0000
+## item4.int.gender  0.0000
+## item4.int.study   0.0000
+## item5.int.age    -0.6745
+## item5.int.gender -0.6913
+## item5.int.study   0.5488
+## item6.int.age    -0.1515
+## item6.int.gender  0.0293
+## item6.int.study   0.0590
+## item1.slp.age     0.0012
+## item1.slp.gender -0.0091
+## item1.slp.study  -0.4055
+## item2.slp.age     0.0321
+## item2.slp.gender  0.0881
+## item2.slp.study  -0.1406
+## item3.slp.age    -0.0255
+## item3.slp.gender -0.2028
+## item3.slp.study  -0.5129
+## item4.slp.age     0.0631
+## item4.slp.gender  0.0000
+## item4.slp.study  -0.6216
+## item5.slp.age     0.0000
+## item5.slp.gender -0.5273
+## item5.slp.study  -0.0769
+## item6.slp.age     0.0000
+## item6.slp.gender -0.0012
+## item6.slp.study  -0.3516</code></pre>
 <p>Now that the data have been properly specified in
 <code>regDIF</code>, a more thorough investigation of DIF is warranted.
 The <code>regDIF()</code> function defaults to estimating 100 values of
@@ -457,24 +471,24 @@ the tuning parameter, starting with a value large enough to penalize all
 DIF effects to zero. However, for brevity, only 10 values of tau are
 specified with the <code>num.tau</code> argument and we reduce the
 tolerance for convergence using the <code>control</code> argument.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">num.tau =</span> <span class="dv">10</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">tol =</span> <span class="fl">1e-3</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit2</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">num.tau =</span> <span class="dv">10</span>, <span class="at">control =</span> <span class="fu">list</span>(<span class="at">tol =</span> <span class="fl">1e-3</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>fit2</span></code></pre></div>
 <pre><code>## Call:
 ## regDIF(item.data = item.data, pred.data = pred.data, num.tau = 10, 
 ##     control = list(tol = 0.001))
 ## 
 ## regDIF results:
-##           tau      bic
-## 1  0.59206560 4133.065
-## 2  0.41582659 4104.552
-## 3  0.27857133 4087.552
-## 4  0.17542684 4081.078
-## 5  0.10152016 4093.533
-## 6  0.05197832 4120.268
-## 7          NA       NA
-## 8          NA       NA
-## 9          NA       NA
-## 10         NA       NA</code></pre>
+##          tau      bic
+## 1  40.926501 4133.065
+## 2  28.743990 4110.741
+## 3  19.256227 4104.520
+## 4  12.126371 4108.451
+## 5   7.017576 4118.523
+## 6   3.592999 4138.299
+## 7         NA       NA
+## 8         NA       NA
+## 9         NA       NA
+## 10        NA       NA</code></pre>
 <p>By printing the model object, 10 rows of results appear, one for each
 value of the tuning parameter. The first thing to notice is that 4 rows
 are missing. This occurs because <code>regDIF()</code> automatically
@@ -485,36 +499,36 @@ non-identified. This is an encouraging result. The
 <code>summary()</code> function may be used again, which, with multiple
 values of the tuning parameter fit to the data, produces non-zero DIF
 effects corresponding to the model with the minimum value of BIC.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">summary</span>(fit2)</span></code></pre></div>
 <pre><code>## Call:
 ## regDIF(item.data = item.data, pred.data = pred.data, num.tau = 10, 
 ##     control = list(tol = 0.001))
 ## 
 ## Optimal model (out of 10):
-##          tau          bic 
-##    0.1754268 4081.0782000 
+##        tau        bic 
+##   19.25623 4104.52000 
 ## 
 ## Non-zero DIF effects:
-##    item4.int.age    item5.int.age item5.int.gender  item5.int.study 
-##           0.2163          -0.0885          -0.5713           0.6024 
-##  item4.slp.study item5.slp.gender 
-##          -0.0928          -0.1771</code></pre>
+##    item5.int.age item5.int.gender  item5.int.study  item4.slp.study 
+##          -0.0352          -0.3535           0.4341          -0.0777 
+##    item5.slp.age item5.slp.gender 
+##          -0.0450          -0.2071</code></pre>
 <p>A plot of the regularization path also shows the remaining DIF
 effects.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit2)</span></code></pre></div>
-<p><img src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">plot</span>(fit2)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
 <p>To produce other model results, the <code>fit2</code> object contains
 lists of the impact (latent variable) parameters, base (intercept and
 slope) item parameters, and DIF parameters for all values of the tuning
 parameter. For instance, the impact parameters are printed below.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fit2<span class="sc">$</span>impact</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>fit2<span class="sc">$</span>impact</span></code></pre></div>
 <pre><code>##                [,1]    [,2]    [,3]    [,4]    [,5]    [,6] [,7] [,8] [,9]
-## mean.age     0.7042  0.7085  0.6934  0.7107  0.7693  0.9216   NA   NA   NA
-## mean.gender -0.1739 -0.1188 -0.0875 -0.0776 -0.0860 -0.1113   NA   NA   NA
-## mean.study   0.9585  0.9080  0.8750  0.8802  0.9030  0.9571   NA   NA   NA
-## var.age      0.4317  0.4433  0.4299  0.4359  0.4218  0.3716   NA   NA   NA
-## var.gender  -0.1006 -0.0902 -0.0918 -0.0655 -0.0586 -0.0219   NA   NA   NA
-## var.study   -0.1243 -0.1312 -0.1115 -0.0652  0.0364  0.2551   NA   NA   NA
+## mean.age     0.7042  0.7160  0.7258  0.7663  0.8800  0.9404   NA   NA   NA
+## mean.gender -0.1739 -0.1260 -0.1068 -0.0983 -0.1170 -0.1283   NA   NA   NA
+## mean.study   0.9585  0.9271  0.9222  0.9262  0.9749  0.9747   NA   NA   NA
+## var.age      0.4317  0.4686  0.4905  0.4734  0.4046  0.3171   NA   NA   NA
+## var.gender  -0.1006 -0.0546 -0.0405 -0.0419 -0.0234 -0.0089   NA   NA   NA
+## var.study   -0.1243 -0.1394 -0.1171 -0.0358  0.1544  0.3372   NA   NA   NA
 ##             [,10]
 ## mean.age       NA
 ## mean.gender    NA
@@ -523,15 +537,15 @@ parameter. For instance, the impact parameters are printed below.</p>
 ## var.gender     NA
 ## var.study      NA</code></pre>
 <p>EAP scores and standard deviations may also be produced.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(fit2<span class="sc">$</span>eap, head)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">lapply</span>(fit2<span class="sc">$</span>eap, head)</span></code></pre></div>
 <pre><code>## $scores
 ##            [,1]       [,2]       [,3]       [,4]       [,5]       [,6] [,7]
-## [1,] -1.8130833 -1.8125184 -1.7896639 -1.7995627 -1.8526168 -2.0039661   NA
-## [2,] -1.3342935 -1.3320319 -1.3196124 -1.2915327 -1.2497203 -1.1606881   NA
-## [3,] -1.2256347 -1.2404596 -1.2275429 -1.1702650 -1.0116288 -0.6035783   NA
-## [4,]  2.0793250  2.0691533  2.0263565  1.9878598  1.9093402  1.6925890   NA
-## [5,] -1.8130833 -1.8125184 -1.7896639 -1.7995627 -1.8526168 -2.0039661   NA
-## [6,] -0.3805602 -0.3535745 -0.3491745 -0.3608825 -0.3627101 -0.2775264   NA
+## [1,] -1.8130833 -1.8157221 -1.8217953 -1.8623577 -1.9862165 -2.0174588   NA
+## [2,] -1.3342935 -1.3227238 -1.3120476 -1.2814767 -1.2176086 -1.1280142   NA
+## [3,] -1.2256347 -1.2560766 -1.2536711 -1.1151152 -0.7702964 -0.4691113   NA
+## [4,]  2.0793250  2.0869953  2.0768871  2.0070648  1.7744336  1.5654123   NA
+## [5,] -1.8130833 -1.8157221 -1.8217953 -1.8623577 -1.9862165 -2.0174588   NA
+## [6,] -0.3805602 -0.3552358 -0.3580264 -0.3680989 -0.3221837 -0.2510906   NA
 ##      [,8] [,9] [,10]
 ## [1,]   NA   NA    NA
 ## [2,]   NA   NA    NA
@@ -542,12 +556,12 @@ parameter. For instance, the impact parameters are printed below.</p>
 ## 
 ## $sd
 ##           [,1]      [,2]      [,3]      [,4]      [,5]      [,6] [,7] [,8] [,9]
-## [1,] 0.7966229 0.7916416 0.7898758 0.7653328 0.7362193 0.6776154   NA   NA   NA
-## [2,] 0.9317806 0.9313398 0.9215595 0.8948896 0.8499689 0.7514918   NA   NA   NA
-## [3,] 1.1450472 1.1535148 1.1257071 1.0902247 1.0105346 0.8287311   NA   NA   NA
-## [4,] 0.6973359 0.6949156 0.6865598 0.6655699 0.6289102 0.5495122   NA   NA   NA
-## [5,] 0.7966229 0.7916416 0.7898758 0.7653328 0.7362193 0.6776154   NA   NA   NA
-## [6,] 0.8553530 0.8510991 0.8372854 0.8165459 0.7742955 0.6711971   NA   NA   NA
+## [1,] 0.7966229 0.7758801 0.7568670 0.7374181 0.6970773 0.6676399   NA   NA   NA
+## [2,] 0.9317806 0.9266071 0.9148572 0.8800996 0.7918539 0.7128887   NA   NA   NA
+## [3,] 1.1450472 1.1685206 1.1736104 1.1040151 0.9101280 0.7378248   NA   NA   NA
+## [4,] 0.6973359 0.6935337 0.6851802 0.6579151 0.5871376 0.5106761   NA   NA   NA
+## [5,] 0.7966229 0.7758801 0.7568670 0.7374181 0.6970773 0.6676399   NA   NA   NA
+## [6,] 0.8553530 0.8534927 0.8463721 0.8132854 0.7162173 0.6209409   NA   NA   NA
 ##      [,10]
 ## [1,]    NA
 ## [2,]    NA
@@ -564,23 +578,23 @@ to performing a multivariate regression, where the item responses are
 regressed on the proxy scores and background variables. (The proxy
 scores are simultaneously regressed on the background variables as
 well.)</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>fit3 <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">prox.data =</span> <span class="fu">rowSums</span>(item.data), <span class="at">num.tau =</span> <span class="dv">20</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit3)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>fit3 <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">prox.data =</span> <span class="fu">rowSums</span>(item.data), <span class="at">num.tau =</span> <span class="dv">20</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">summary</span>(fit3)</span></code></pre></div>
 <pre><code>## Call:
 ## regDIF(item.data = item.data, pred.data = pred.data, prox.data = rowSums(item.data), 
 ##     num.tau = 20)
 ## 
 ## Optimal model (out of 20):
-##          tau          bic 
-##    0.2506739 3547.6463000 
+##        tau        bic 
+##   14.84459 3553.86250 
 ## 
 ## Non-zero DIF effects:
 ## item3.int.gender    item4.int.age    item5.int.age item5.int.gender 
-##           0.1220           0.2403          -0.0205          -0.5422 
-##  item5.int.study item6.int.gender item2.slp.gender  item4.slp.study 
-##           0.7356           0.0031           0.1388          -0.1627 
+##           0.1243           0.1735          -0.0255          -0.5186 
+##  item5.int.study item2.slp.gender  item4.slp.study    item5.slp.age 
+##           0.6472           0.0470          -0.1488          -0.0752 
 ## item5.slp.gender 
-##          -0.1602</code></pre>
+##          -0.1155</code></pre>
 <p>The results show more DIF on both the intercepts (Items 3 and 6) and
 slopes (Items 2, 3, and 5).</p>
 </div>
@@ -596,23 +610,25 @@ second tuning parameter, <code>alpha</code>, and defaults to
 <code>alpha</code> is between 0 and 1, however, the elastic net is used
 to perform DIF selection. For brevity, observed proxy scores are used in
 all model fitting below.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>fit_net <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">prox.data =</span> <span class="fu">rowSums</span>(item.data), <span class="at">num.tau =</span> <span class="dv">20</span>, <span class="at">alpha =</span> .<span class="dv">5</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_net)</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>fit_net <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">prox.data =</span> <span class="fu">rowSums</span>(item.data), <span class="at">num.tau =</span> <span class="dv">20</span>, <span class="at">alpha =</span> .<span class="dv">5</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a><span class="fu">summary</span>(fit_net)</span></code></pre></div>
 <pre><code>## Call:
 ## regDIF(item.data = item.data, pred.data = pred.data, prox.data = rowSums(item.data), 
 ##     num.tau = 20, alpha = 0.5)
 ## 
 ## Optimal model (out of 20):
-##          tau          bic 
-##    0.5605648 3568.9282000 
+##        tau        bic 
+##   18.54054 3573.79720 
 ## 
 ## Non-zero DIF effects:
-## item3.int.gender    item4.int.age    item5.int.age item5.int.gender 
-##           0.0715           0.1703          -0.0958          -0.3511 
-##  item5.int.study item2.slp.gender  item4.slp.study    item5.slp.age 
-##           0.4398           0.0814          -0.1200          -0.0006 
-## item5.slp.gender 
-##          -0.1406</code></pre>
+## item1.int.gender    item2.int.age    item3.int.age item3.int.gender 
+##           0.0578           0.0578          -0.0651           0.1871 
+##    item4.int.age    item5.int.age item5.int.gender  item5.int.study 
+##           0.2223          -0.1376          -0.4994           0.5594 
+## item6.int.gender item2.slp.gender  item3.slp.study    item4.slp.age 
+##           0.0277           0.1513          -0.0830           0.0055 
+##  item4.slp.study    item5.slp.age item5.slp.gender 
+##          -0.2035          -0.1309          -0.2121</code></pre>
 <p>The final elastic net results yield the same DIF effects as the LASSO
 results, although the amount of penalization is greater for elastic net
 (i.e., larger <code>tau</code>).</p>
@@ -620,21 +636,21 @@ results, although the amount of penalization is greater for elastic net
 the group extensions of LASSO and MCP, which penalize the intercept and
 slope DIF effects in tandem. The group LASSO function is shown
 below.</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fit_grp_mcp <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">prox.data =</span> <span class="fu">rowSums</span>(item.data), <span class="at">num.tau =</span> <span class="dv">20</span>, <span class="at">pen.type =</span> <span class="st">&quot;grp.mcp&quot;</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_grp_mcp)</span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>fit_grp_mcp <span class="ot">&lt;-</span> <span class="fu">regDIF</span>(item.data, pred.data, <span class="at">prox.data =</span> <span class="fu">rowSums</span>(item.data), <span class="at">num.tau =</span> <span class="dv">20</span>, <span class="at">pen.type =</span> <span class="st">&quot;grp.mcp&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="fu">summary</span>(fit_grp_mcp)</span></code></pre></div>
 <pre><code>## Call:
 ## regDIF(item.data = item.data, pred.data = pred.data, prox.data = rowSums(item.data), 
 ##     pen.type = &quot;grp.mcp&quot;, num.tau = 20)
 ## 
 ## Optimal model (out of 20):
 ##          tau          bic 
-##    0.4673465 3535.4418000 
+##    0.4324324 3530.2034000 
 ## 
 ## Non-zero DIF effects:
 ##    item4.int.age item5.int.gender  item5.int.study    item4.slp.age 
-##           0.1472          -0.5585           0.7661           0.0980 
+##           0.1793          -0.6400           0.8894           0.1182 
 ## item5.slp.gender  item5.slp.study 
-##          -0.3758           0.2438</code></pre>
+##          -0.4197           0.2578</code></pre>
 <p>Although the MCP results appear largely the same as the LASSO
 results, the group MCP function included both the intercept and slope
 for each background variable remaining in the final model.</p>
@@ -643,24 +659,29 @@ of using regularization to identify DIF across multiple background
 characteristics.</p>
 <p>Please reach out to <a href="mailto:wbelzak@gmail.com">wbelzak@gmail.com</a> for any questions,
 and remember to cite regDIF in your work. Thank you kindly!</p>
-<pre><code>## 
-## To cite regDIF in publications use:
+<pre><code>## This package can be cited as:
 ## 
-##   Belzak, W. C. M (2021). regDIF: Regularized Differential Item
-##   Functioning. version 1.0.0. Duolingo. Pittsburgh, PA.
-##   https://github.com/wbelzak/regDIF/
+##   Belzak, W. C. M. (2023). The regDIF R Package: Evaluating Complex
+##   Sources of Measurement Bias Using Regularized Differential Item
+##   Functioning. Structural Equation Modeling: A Multidisciplinary
+##   Journal, 74-984, DOI: 10.1080/10705511.2023.2170235
 ## 
 ## A BibTeX entry for LaTeX users is
 ## 
-##   @Manual{,
-##     title = {regDIF: Regularized Differential Item Functioning},
+##   @Article{,
+##     journal = {Structural Equation Modeling: A Multidisciplinary Journal},
+##     entry = {manual},
+##     title = {The regDIF R Package: Evaluating Complex Sources of Measurement Bias Using Regularized Differential Item Functioning},
 ##     author = {William C. M. Belzak},
 ##     organization = {Duolingo},
 ##     address = {Pittsburgh, PA},
-##     note = {version 1.0.0},
-##     year = {2021},
-##     url = {https://github.com/wbelzak/regDIF/},
-##   }</code></pre>
+##     year = {2023},
+##     url = {https://doi.org/10.1080/10705511.2023.2170235},
+##   }
+## 
+## This free open-source software implements academic research by the
+## authors and co-workers. If you use it, please support the project by
+## citing the appropriate journal articles.</code></pre>
 </div>
 
 

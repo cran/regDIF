@@ -25,15 +25,15 @@ d_bernoulli(
 
 \item{theta}{Matrix of adaptive theta values.}
 
+\item{pred_data}{Matrix or dataframe of DIF and/or impact predictors.}
+
 \item{cov}{Covariate being maximized.}
 
 \item{samp_size}{Sample size in dataset.}
 
 \item{num_items}{Number of items in dataset.}
 
-\item{pred.data}{Matrix or dataframe of DIF and/or impact predictors.}
-
-\item{num.quad}{Number of quadrature points used for approximating the
+\item{num_quad}{Number of quadrature points used for approximating the
 latent variable.}
 }
 \value{
